@@ -1,0 +1,74 @@
+WASX7209I: Connected to process "dmgr" on node dmgrPlumNode using SOAP connector;  The type of process is: DeploymentManager
+-------------------------------------------------------------------------------
+Actions performed by WAuJ.py:
+> from __future__ import nested_scopes
+> sys.modules.update( WSASobjects )  # All admin objects added
+> wasroot = r'/opt/IBM/wasv9'
+-------------------------------------------------------------------------------
+WASX7303I: The following options are passed to the scripting environment and are available as arguments that are stored in the argv variable: "[/home/hazel/websphere_v9/was_configurator/, etp_oat_config_aix_cheetah_awkward.ini]"
+
+
+
+
+got to here aaa
+
+WASX7017E: Exception received while running file "/home/hazel/websphere_v9/was_configurator/config_scripts/UserInterface.py"; exception information: com.ibm.bsf.BSFException: exception from Jython:
+Traceback (most recent call last):
+  File "<string>", line 3053, in <module>
+java.lang.NullPointerException
+	at org.python.core.ParserFacade.fixParseError(ParserFacade.java:98)
+	at org.python.core.ParserFacade.parse(ParserFacade.java:190)
+	at org.python.core.imp.compileSource(imp.java:366)
+	at org.python.core.imp.createFromSource(imp.java:388)
+	at org.python.core.imp.loadFromSource(imp.java:661)
+	at org.python.core.imp.find_module(imp.java:543)
+	at org.python.core.imp.import_next(imp.java:840)
+	at org.python.core.imp.import_module_level(imp.java:959)
+	at org.python.core.imp.importName(imp.java:1062)
+	at org.python.core.ImportFunction.__call__(__builtin__.java:1280)
+	at org.python.core.PyObject.__call__(PyObject.java:431)
+	at org.python.core.__builtin__.__import__(__builtin__.java:1232)
+	at org.python.core.imp.importOne(imp.java:1081)
+	at org.python.pycode._pyx62.f$0(<string>:3064)
+	at org.python.pycode._pyx62.call_function(<string>)
+	at org.python.core.PyTableCode.call(PyTableCode.java:167)
+	at org.python.core.PyCode.call(PyCode.java:18)
+	at org.python.core.Py.runCode(Py.java:1386)
+	at org.python.core.Py.exec(Py.java:1430)
+	at org.python.util.PythonInterpreter.exec(PythonInterpreter.java:267)
+	at com.ibm.bsf.engines.jython.JythonEngine.exec(JythonEngine.java:120)
+	at com.ibm.bsf.BSFManager$6.run(Unknown Source)
+	at java.security.AccessController.doPrivileged(AccessController.java:738)
+	at com.ibm.bsf.BSFManager.exec(Unknown Source)
+	at com.ibm.ws.scripting.AbstractShell.executeScript(AbstractShell.java:1290)
+	at com.ibm.ws.scripting.AbstractShell.run(AbstractShell.java:2394)
+	at com.ibm.ws.scripting.WasxShell.main(WasxShell.java:1256)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:90)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+	at java.lang.reflect.Method.invoke(Method.java:508)
+	at com.ibm.wsspi.bootstrap.WSLauncher.launchMain(WSLauncher.java:234)
+	at com.ibm.wsspi.bootstrap.WSLauncher.main(WSLauncher.java:101)
+	at com.ibm.wsspi.bootstrap.WSLauncher.run(WSLauncher.java:82)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:90)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+	at java.lang.reflect.Method.invoke(Method.java:508)
+	at org.eclipse.equinox.internal.app.EclipseAppContainer.callMethodWithException(EclipseAppContainer.java:587)
+	at org.eclipse.equinox.internal.app.EclipseAppHandle.run(EclipseAppHandle.java:198)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.runApplication(EclipseAppLauncher.java:110)
+	at org.eclipse.core.runtime.internal.adaptor.EclipseAppLauncher.start(EclipseAppLauncher.java:79)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:354)
+	at org.eclipse.core.runtime.adaptor.EclipseStarter.run(EclipseStarter.java:181)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:90)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:55)
+	at java.lang.reflect.Method.invoke(Method.java:508)
+	at org.eclipse.core.launcher.Main.invokeFramework(Main.java:340)
+	at org.eclipse.core.launcher.Main.basicRun(Main.java:282)
+	at org.eclipse.core.launcher.Main.run(Main.java:981)
+	at com.ibm.wsspi.bootstrap.WSPreLauncher.launchEclipse(WSPreLauncher.java:422)
+	at com.ibm.wsspi.bootstrap.WSPreLauncher.main(WSPreLauncher.java:179)
+
+java.lang.NullPointerException: java.lang.NullPointerException
+
