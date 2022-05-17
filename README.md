@@ -17,3 +17,5 @@ Future work I am planning for them (currently under way):
 * write new instructions to reflect the refactored version
 
 Script reads the plain-text windows ini-format config file and then compares it to the existing config in the WAS cell it is connected to. It displays summary of both configs (config file and cell), with asterisk to show which items are in both the config file and the WAS cell. Script displays nested menus of common user actions, such as "Add" config item(s) to cell, and "Replace" existing config item(s) in cell with the ones in the config file.
+
+H Malloy
