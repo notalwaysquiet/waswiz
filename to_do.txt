@@ -1,0 +1,7 @@
+to_do.txt
+
+d fix bug where get_node_list() includes dmgr in results
+  create example config files for all supported features
+  test & debug Destroyer as standalone
+  add method to Destroyer to blow away node-scoped websphere vars 
+  add "blow away" feature to user interface
