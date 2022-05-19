@@ -232,17 +232,17 @@ def doNodeLevelWebsphereVariables(cellName, cfgDict):
             for nodeName in nodeList:
                 variableId = ItemExists.nodeScopedVariableExists(cellName, nodeName, symbolicName)
                 if variableId == None:
-                    print "\n Variable name does not already exist: " + symbolicName
-                    print " Creating new variable: " + symbolicName
+                    print "\n\nVariable name does not already exist: " + symbolicName
+                    print "  Creating new variable: " + symbolicName
                     # for user-defined jdbc drivers, e.g., mysql, item will not already exist
                     # there is a pre-defined variable "User-defined_JDBC_DRIVER_PATH" but I prefer to put MySql in the name
                     WebsphereVariables.createNodeLevelWebsphereVariableEntry(nodeName, symbolicName, value, description)
                 else:                
                     # for standard jdbc drivers, item will already exist
                     # this method will only change value for existing var if it was ""
-                    print "\n Variable name exists: " + symbolicName
-                    print "\n\n\n\n Modifying existing variable only if it is blank: " + symbolicName
-                    print "\n -----------------> To change a non-blank existing variable, use 'replace' function instead of 'add' function."
+                    print "\n\nVariable name exists: " + symbolicName
+                    print "  Modifying existing variable only if it is blank: " + symbolicName
+                    # print "\n -----------------> To change a non-blank existing variable, use 'replace' function instead of 'add' function."
                     WebsphereVariables.setBlankNodeLevelWebsphereVariableEntry(nodeName, symbolicName, value)
 
     except:

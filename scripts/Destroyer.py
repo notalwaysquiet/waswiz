@@ -28,6 +28,8 @@
 #   ItemExists.py
 #   wini.py
 
+# Linux
+# sudo /opt/IBM/wasv9/profiles/dmgrPlum/bin/wsadmin.sh -f Destroyer.py cell_level_v1_0.ini
 
 # standalone environment - windows
 # wsadmin.bat -p C:\qdr\ETP_dev\config_scripts\wsadmin_properties_files\custom.properties -f c:/qdr/ETP_dev/config_scripts/Destroyer.py c:/qdr/ETP_dev/ standalone_config_windows_c_drive_servers.ini
@@ -42,15 +44,11 @@
 ###############################################################################
 
 
-#--------------------------------------------------------------------
-# Set global constants
-#--------------------------------------------------------------------
+import os
 import sys
 import time
 
-import AdminConfig
-
-import Utilities
+SCRIPT_CONFIG_VERSION = '1.0'
 
 
 ''' Blow away Websphere environment from config file
@@ -67,7 +65,7 @@ def blowAwayEnv(configFile):
 
     try:
         configInfo = cfgDict['configInfo']
-        confver=configInfo['confver'].strip()
+        confver = configInfo['confver']
     except:
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
         print "\n Can't find version of config file.\n"
@@ -76,10 +74,10 @@ def blowAwayEnv(configFile):
         
     if (confver != SCRIPT_CONFIG_VERSION):
         print "\n Version numbers of configFile and this script must match."
-        print "   Version of configFile: " + str(confver)
-        print "   Version of script: " + str(SCRIPT_CONFIG_VERSION)
+        print "   Version of configFile: *" + str(confver) + "*"
+        print "   Version of script: *" + str(SCRIPT_CONFIG_VERSION) + "*"
         print "Exiting."
-        sys.exit(1)
+        sys.exit("config version mismatch")
 
     try:
         print "\n"  
@@ -89,10 +87,7 @@ def blowAwayEnv(configFile):
         print "\n\n"
         
         environmentGenInfo = cfgDict['cellInfo']
-        
         cellName = environmentGenInfo['cellName'].strip()
-        nodeList = environmentGenInfo['nodeList'].split()
-        
         
         try:
             if ItemExists.cellExists(cellName):
@@ -100,22 +95,10 @@ def blowAwayEnv(configFile):
                 print "Target node list: "
             else:
                 print "\nThe specified cell: " + cellName + " does not exist."
-                print "Cell must exist with name as defined in config file."
+                actual_cell = Utilities.get_cell_name()
+                print "This script is being run in cell: " + actual_cell
                 print "Run this script from wsadmin for dmgr profile of the target cell."
-                sys.exit(1)
-
-            for nodeName in nodeList:
-                someNodeNotFound = 'false'
-                if ItemExists.nodeExists(nodeName):
-                    print "     Node: " + nodeName
-                else:
-                    someNodeNotFound = 'true'
-                    print "\nThe specified node: " + nodeName + " does not exist."
-                    print "Node(s) must exist with name(s) as defined in config file."
-            if (someNodeNotFound == 'true'):
-                print "\nAll nodes listed in config file must exist."
-                print ". . . exiting."
-                sys.exit(1)
+                sys.exit("wrong cell")
  
         except:
             print "\n\nException in blowAwayEnv() when checking general config & cell info"
@@ -727,32 +710,60 @@ if __name__ !="__main__":
 if __name__=="__main__":
     usage = " "
     usage = usage + " "
-    usage = usage + "Usage: <wsadmin command> -javaoption '-Dwsadmin.script.libraries=c:/qdr/ETP_dev/' [-p <target wsadmin.properties file>] -f <this py script> <config dir e.g., c:/qdr/ETP_dev/> <config file name>"
+    usage = usage + "Usage: <wsadmin command> -f <this py script><config file name>"
     usage = usage + " . . . and must have modified soap.client.props of target wsadmin profile if security is enabled\n"
     print "\n\n"
 
-    if len(sys.argv) == 2:
-        configDir=sys.argv[0]
-        print "configDir " + configDir
-        
-        # e.g., C:/qdr/ETP_dev/
-        
-        #sys.path.append('C:/qdr/ETP_dev/config_scripts')          
-        sys.path.append(configDir + 'config_scripts')
-        
-        # modules are expected to be in the directory we just appended to search path
-        import ItemExists 
+    if len(sys.argv) == 1:
+        #----------------------------------------------------------------------
+        # Add references for the WebSphere Admin objects to sys.modules
+        # sys.modules - dictionary that maps module names to modules which
+        # have already been loaded.
+        #----------------------------------------------------------------------
+        wsadmin_objects = {
+                        'AdminApp'      : AdminApp    ,
+                        'AdminConfig'   : AdminConfig ,
+                        'AdminControl'  : AdminControl,
+                        'AdminTask'     : AdminTask,
+                      }
+        sys.modules.update(wsadmin_objects)
+
+        #----------------------------------------------------------------------
+        # Add the scripts dir to python path
+        # I can't find any way to get wsadmin to display name & path
+        #   of currently running script
+        # and it's way too awkward to make scripts dir be an arg
+        # so we require script must be run from scripts dir
+        # e.g., home/hazel/was_configurator/scripts
+        pwd = os.getcwd()
+        scripts_dir = pwd
+        sys.path.append(scripts_dir)
+
+        #----------------------------------------------------------------------
+        # Find the config file
+        # we expect the config_files dir to be a sister dir of pwd
+        parent_dir = os.path.split(scripts_dir)[0]
+        config_dir = os.path.join(parent_dir, 'config_files')
+        config_filename = sys.argv[0]
+        configFile = os.path.join(config_dir, config_filename)
+
+        #----------------------------------------------------------------------
+        # Import all the modules this module uses at runtime
+        # we expect these modules to be in the directory we just appended
+        #   to search path
+        import ItemExists
+        import Utilities
         import wini
-        
-        configFile=sys.argv[1]
-        print "configFile: " + configFile
-        
-        configPath = configDir + "/config_files/"
-        print "configPath: " + configPath
-        
-        blowAwayEnv(configPath + configFile)
+
+        blowAwayEnv(configFile)
     else:
         print usage
         sys.exit(1)
   
-#endIf
+else:
+    # being run as module, not top-level script
+    import AdminConfig
+
+    import ItemExists
+    import Utilities
+    import wini

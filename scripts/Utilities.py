@@ -41,7 +41,7 @@ def get_cell_name():
 
 
 '''Return list of node names in the cell (including dmgr)'''
-def get_node_name_list():
+def get_node_name_list_incl_dmgr():
     node_name_list = convertToList(AdminTask.listNodes())
     return node_name_list
 
@@ -49,3 +49,36 @@ def get_node_name_list():
 '''Return list of node ids in the cell (includng dmgr)'''
 def get_node_id_list():
     return AdminConfig.list("Node")
+
+
+'''Return id of specified node name'''
+def get_node_id(node_name):
+    node_id = AdminConfig.getid("/Node:"+node_name+"/")
+    return node_id
+
+
+'''Return name of specifie node id'''
+def get_node_name(node_id):
+    return AdminConfig.showAttribute(node_id, 'name')
+
+
+'''Return list of server entries in serverindex.xml for the node'''
+def get_serverindex_server_entries(node_name):
+    node_id = AdminConfig.getid("/Node:"+node_name+"/")
+    return AdminConfig.list('ServerEntry', node_id)
+
+
+'''Return list of node names in the cell EXCLUDING dmgr'''
+def get_node_name_list():
+    node_list = []
+    all_nodes_id_list = convertToList(AdminConfig.list('Node'))
+
+    for node_id in all_nodes_id_list:
+        # ServerEntry elements are in serverindex.xml
+        server_entry_list = convertToList(AdminConfig.list('ServerEntry', node_id))
+        first_id = server_entry_list[0]
+        if first_id.startswith('nodeagent'):
+            node_name = AdminConfig.showAttribute(first_id,'serverName')
+            node_list.append(node_name)
+
+    return node_list

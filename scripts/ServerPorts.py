@@ -137,7 +137,7 @@ def setEndPointsStartPort(nodeName, serverName, startPort, wasVersion):
         AdminTask.modifyServerPort (serverName, ['-nodeName', nodeName, '-endPointName', endPointName, '-port', portNumber, '-modifyShared', 'true'])
         print "wasVersion is: " + wasVersion + "."
         
-        if (int(wasVersion) >= "7"):
+        if (int(wasVersion) >= 7):
             # 4
             portNumber=portNumber+1
             ''' new in WAS7
@@ -151,7 +151,7 @@ def setEndPointsStartPort(nodeName, serverName, startPort, wasVersion):
         AdminTask.modifyServerPort (serverName, ['-nodeName', nodeName, '-endPointName', endPointName, '-port', portNumber])
 
         # 6
-        if (int(wasVersion) >= "8"):
+        if (int(wasVersion) >= 8):
             portNumber=portNumber+1
             ''' new in WAS8
             # Used for peer-to-peer (P2P) communication.The ODC (On Demand Configuration) and asynchronous PMI components use P2P as their transport. This port is required by every WebSphere Extended Deployment process. '''
@@ -159,7 +159,7 @@ def setEndPointsStartPort(nodeName, serverName, startPort, wasVersion):
             AdminTask.modifyServerPort (serverName, ['-nodeName', nodeName, '-endPointName', endPointName, '-port', portNumber])
 
         # 7
-        if (int(wasVersion) >= "8"):
+        if (int(wasVersion) >= 8):
             portNumber=portNumber+1
             ''' new in WAS8
             # As for previous, but UDP. '''
