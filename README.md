@@ -35,12 +35,13 @@ I have done some refactoring before uploading the scripts to github to make the 
 The original version of the scripts was thoroughly tested, but I have done a lot of refactoring recently. In theory, I would like to thorougly test the refactored scripts before making them available to others. But the scripts are probably pretty useful already as they are, so I uploaded them to github. I plan to work on them some more. 
 
 ## Future work
-See also to_do.md.
-Future work I am planning for them (currently under way):
+Future work I am planning for waswiz:
 * more thorough testing using demo app to be installed after config script completes. I have only tested so far to verify that the server will start.
 * prepare a "demo kit" with java app and scripts for DB and MQ, and corresponding config files for the websphere side of the config. 
 * upgrade the comments. E.g., make sure every method has a (multiline) comment
 * refactor to clarify better how data is passed around within the scripts, especially in UserInterface.py
-* write & upload new instructions to reflect the refactored version
+
+See also [to_do.md](https://github.com/notalwaysquiet/waswiz/blob/main/to_do.md) and the [Issues](https://github.com/notalwaysquiet/waswiz/issues) section of this repo. 
+
 
 H Malloy

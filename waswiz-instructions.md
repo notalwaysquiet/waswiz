@@ -8,15 +8,15 @@ Unzip the code wherever is convenient on your system. It will unzip as a folder 
 ### 1. Start your WAS if nec
 For WAS ND, the dmgr must be started. For base WAS, your "server1" must be started.
 ### 2. Start a terminal (or DOS, or whatever) and change to the scripts directory
-For example, I cd to /home/hazel/repos/waswiz/scripts.
+For example, I cd to `/home/hazel/repos/waswiz/scripts`.
 ### 3. Run waswiz script
 Syntax for WAS ND, on Linux/UNIX: `<path to your dmgr profile>/bin/wsadmin.sh -f waswiz.py <filename of your config file>`
 
 Example:
 `sudo /opt/IBM/wasv9/profiles/dmgrPlum/bin/wsadmin.sh -f waswiz.py cheetah_v1_0.ini`
 
-The script will print an error message and exit if your config file does not match the WAS cell you have connected to.
-### 4. Write (or edit) your config file
+The script will print an error message and exit if your config file does not match the WAS cell you have connected to (to help prevent tragic mistakes).
+### 4. Write (or edit) your own config file
 Use an existing config file as an example. The example config files are heavily commented to help you out. Substitute the name of your cell, and other information as instructed in the comments. 
 
 More example config files should be coming soon.
