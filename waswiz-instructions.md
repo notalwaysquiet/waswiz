@@ -10,10 +10,10 @@ For WAS ND, the dmgr must be started. For base WAS, your "server1" must be start
 ### 2. Start a terminal (or DOS, or whatever) and change to the scripts directory
 For example, I cd to /home/hazel/repos/waswiz/scripts.
 ### 3. Run waswiz script
-Syntax for WAS ND, on Linux/UNIX: '<path to your dmgr profile>/bin/wsadmin.sh -f waswiz.py <filename of your config file>'
+Syntax for WAS ND, on Linux/UNIX: `<path to your dmgr profile>/bin/wsadmin.sh -f waswiz.py <filename of your config file>`
 
 Example:
-'sudo /opt/IBM/wasv9/profiles/dmgrPlum/bin/wsadmin.sh -f waswiz.py cheetah_v1_0.ini'
+`sudo /opt/IBM/wasv9/profiles/dmgrPlum/bin/wsadmin.sh -f waswiz.py cheetah_v1_0.ini`
 
 The script will print an error message and exit if your config file does not match the WAS cell you have connected to.
 ### 4. Write (or edit) your config file
