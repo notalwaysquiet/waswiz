@@ -17,7 +17,7 @@ Script reads the plain-text windows ini-format config file and then compares it 
 
 
 ## Why script for WAS?
-There are several benefits to scripting for WAS administration. The most obvious is that the scripted actions run much faster than an admin can do them by hand in the admin console. The second most obvious reason is repeatability. One developer chose not to use my script to set up his developement environment, and he told me it took him two days to configure by hand in the admin console and it was at least a week before he got it working right. With my script, it would have taken him less than an hour. My script framework adds an additional benefit, which is that the config files provide a convenient record of the WAS config, and can be added to version control.
+There are several benefits to scripting for WAS administration. The most obvious is that the scripted actions run much faster than an admin can do them by hand in the admin console. The second most obvious reason is repeatability. One developer chose not to use my script to set up his developement environment, and he told me it took him two days to configure by hand in the admin console and it was at least a week before he got it working right. With my script, it would have taken him less than an hour. My script framework adds an additional benefit, which is that the config is read from a plain-text config file. The config files provide a convenient (though non-authoritative) record of the WAS config, and can be added to version control.
 
 ## Python version
 Note that Websphere v5-8.5.5 used Python 2.1 for its wsadmin engine. I have recently updated the scripts for the (slightly) newer Python v2.7 used by WAS v9. The Python version supported by current Websphere is now only 10 years old now, instead of 20 years old.
@@ -32,7 +32,7 @@ Now that I know more about PEP8, I would like to begin to comply with it, but it
 I have done some refactoring before uploading the scripts to github to make the scripts easier to understand and modify, and to remove duplication. 
 
 ## Warning -- not thoroughly tested
-The original version of the scripts was thoroughly tested, but I have done a lot of refactoring recently. In theory, I would like to thorougly test the refactored scripts before making them available to others. But the scripts are probably pretty useful already as they are, so I am uploading them. I plan to work on them some more. 
+The original version of the scripts was thoroughly tested, but I have done a lot of refactoring recently. In theory, I would like to thorougly test the refactored scripts before making them available to others. But the scripts are probably pretty useful already as they are, so I uploaded them to github. I plan to work on them some more. 
 
 ## Future work
 See also to_do.md.
