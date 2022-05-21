@@ -3,7 +3,7 @@
 # Copyright (c) Hazel Malloy 2022
 ###############################################################################
 # Notes
-#   This "master" i.e. top-level Jython script includes the following procedures:
+#   This top-level Jython script includes the following procedures:
 #       
 #       blowAwayEnv(configFile)
 #       blowAwayAllCellScopedWebsphereVariable(cfgDict)
@@ -57,25 +57,26 @@ def blowAwayEnv(configFile):
         cfgDict=wini.load(open(configFile))
     except:
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
-        print "\n Can't find config file.\n"
+        print "\n Can't find config file, "
+        print "  or other problem with config file: " + configFile
         print "Exiting."
-        sys.exit(1)
+        sys.exit("error parsing config file")
 
     try:
         configInfo = cfgDict['configInfo']
         confver = configInfo['confver']
     except:
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
-        print "\n Can't find version of config file.\n"
+        print "\n Can't find the version of config file.\n"
         print "Exiting."
-        sys.exit(1)
+        sys.exit("error reading config file version")
         
     if (confver != SCRIPT_CONFIG_VERSION):
         print "\n Version numbers of configFile and this script must match."
         print "   Version of configFile: *" + str(confver) + "*"
         print "   Version of script: *" + str(SCRIPT_CONFIG_VERSION) + "*"
         print "Exiting."
-        sys.exit("config version mismatch")
+        sys.exit("config file version mismatch")
 
     try:
         print "\n"  
@@ -90,7 +91,6 @@ def blowAwayEnv(configFile):
         try:
             if ItemExists.cellExists(cellName):
                 print "Target cell: \n    " + cellName
-                print "Target node list: "
             else:
                 print "\nThe specified cell: " + cellName + " does not exist."
                 actual_cell = Utilities.get_cell_name()
@@ -104,7 +104,6 @@ def blowAwayEnv(configFile):
             sys.exit(1)
 
         try:
-            pass
             blowAwayAllClustersServers(cfgDict)
 
         except:
@@ -266,7 +265,7 @@ def blowAwayAllVirtualHosts(cfgDict):
 
 
 def blowAwayOneVirtualHost(virtualHostName):
-    '''Delete a virtual host '''
+    '''Delete a virtual host by name'''
     print "\n"
     print "begin blowAwayOneVirtualHost()"
     try:
@@ -311,7 +310,7 @@ def blowAwayOneServersVirtualHost(cfgDict, serverBaseNameItsFor):
     
 
 def blowAwayAllClustersServers(cfgDict):
-    '''Delete all clusters & servers. Also blows away any servers in each cluster, and blows away all server-level data sources etc. '''
+    '''Delete all clusters & servers that are listed in config dict. Also blows away any servers in each cluster, and blows away all server-level data sources etc. '''
     print "\n"
     print "begin blowAwayAllClustersServers()"
     try:
