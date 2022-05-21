@@ -50,10 +50,8 @@ import time
 
 SCRIPT_CONFIG_VERSION = '1.0'
 
-
-''' Blow away Websphere environment from config file
- (leaves cell and node intact) '''
 def blowAwayEnv(configFile):
+    '''Delete from your Websphere environment everything in config file. Leaves cell and node intact, along with any other config not mentioned in file. '''
     # wini.py reads windows-style ini files & returns nested dict named 'cfgDict'
     try:
         cfgDict=wini.load(open(configFile))
@@ -158,8 +156,8 @@ def blowAwayEnv(configFile):
     print "\nend of blowAwayEnv()"
 
 
-''' Blow away all specified cell-scoped Websphere variables '''
 def blowAwayAllCellScopedWebsphereVariable(cellName, cfgDict):
+    '''Delete all specified cell-scoped Websphere variables '''
     print "\n"
     print "begin blowAwayAllCellScopedWebsphereVariable()"
     try:
@@ -175,8 +173,9 @@ def blowAwayAllCellScopedWebsphereVariable(cellName, cfgDict):
     
     print "\nend of blowAwayAllCellScopedWebsphereVariable()"
 
-''' Blow away a cell-scoped Websphere variable '''
+
 def blowAwayOneCellScopedWebsphereVariable(cellName, variableNameToBlowAway):
+    '''Delete a cell-scoped Websphere variable '''
     print "\n"
     print "begin blowAwayOneCellScopedWebsphereVariable()"
     try:
@@ -198,19 +197,23 @@ def blowAwayOneCellScopedWebsphereVariable(cellName, variableNameToBlowAway):
     
     print "end of blowAwayOneCellScopedWebsphereVariable()"
 
-'''Zero out the values for all node level WAS vars.'''
+
 def zeroOutAllNodeScopedWebsphereVariable(cfgDict):
+    '''Zero out the values for all node level WAS vars.'''
     print "\n"
     print "begin zeroOutAllNodeScopedWebsphereVariable()"
     nodeName = "nodeName not assigned yet"
     try:
         websphereVariablesDict = wini.getPrefixedClauses(cfgDict,'websphereVariables:' + 'nodeLevel' +':')
+        #print "websphereVariablesDict: "
+        #print websphereVariablesDict
         nodeList = Utilities.get_node_name_list()
         
         for websphereVariablesKey in websphereVariablesDict.keys():
             wv = websphereVariablesDict[websphereVariablesKey]
             variableNameToBlowAway = wv['symbolicName']
-            for nodeName in nodeList:            
+            for nodeName in nodeList:
+                #print "nodeName: " + nodeName
                 zeroOutOneNodeScopedWebsphereVariable(nodeName, variableNameToBlowAway)
     except:
         print "\n\nException in zeroOutAllNodeScopedWebsphereVariable()"
@@ -218,14 +221,17 @@ def zeroOutAllNodeScopedWebsphereVariable(cfgDict):
     
     print "end of zeroOutAllNodeScopedWebsphereVariable()"
 
-'''Zero out the value for node level WAS var
-Primarily for JDBC drivers, which for some reason are created blank when node is created in WAS 6.1 & WAS7 (but not for MySQL). Not sure about later versions.'''
+
 def zeroOutOneNodeScopedWebsphereVariable(nodeName, variableNameToBlowAway):
+    '''Zero out the value for node level WAS var. Primarily for JDBC drivers, which for some reason are created blank when node is created in WAS 6.1 & WAS7 (but not for MySQL). Not sure about later versions.'''
     print "\n"
-    print "begin zeroOutOneNodeScopedWebsphereVariable()"
+    print "begin zeroOutOneNodeScopedWebsphereVariable() for node name: " + nodeName
     try:
         nodeId = AdminConfig.getid("/Node:" + nodeName + "/")
-        varSubstitutions = AdminConfig.list("VariableSubstitutionEntry", nodeId).splitlines()
+        #print "nodeID: *" + nodeId + "*"
+        #print 'AdminConfig.list("VariableSubstitutionEntry", nodeId): '
+        #print "*" + AdminConfig.list("VariableSubstitutionEntry", nodeId) + "*"
+        varSubstitutions = Utilities.convertToList(AdminConfig.list("VariableSubstitutionEntry", nodeId))
 
         for varSubst in varSubstitutions:
            getVarName = AdminConfig.showAttribute(varSubst, "symbolicName")
@@ -239,8 +245,9 @@ def zeroOutOneNodeScopedWebsphereVariable(nodeName, variableNameToBlowAway):
     
     print "end of zeroOutOneNodeScopedWebsphereVariable()"
 
-''' Blow away all specified virtual hosts '''
+
 def blowAwayAllVirtualHosts(cfgDict):
+    '''Delete all specified virtual hosts '''
     print "\n"
     print "begin blowAwayAllVirtualHosts()"
     try:
@@ -257,8 +264,9 @@ def blowAwayAllVirtualHosts(cfgDict):
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
     print "\nend of blowAwayAllVirtualHosts()"
 
-''' Blow away a virtual host '''
+
 def blowAwayOneVirtualHost(virtualHostName):
+    '''Delete a virtual host '''
     print "\n"
     print "begin blowAwayOneVirtualHost()"
     try:
@@ -273,10 +281,11 @@ def blowAwayOneVirtualHost(virtualHostName):
         print "\n\nException in blowAwayOneVirtualHost()"
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
     print "end of blowAwayOneVirtualHost()"
+
     
-''' Blow away a server's virtual host. To be called manually after deleting a single server, to clean up. '''
-# to do: call it
 def blowAwayOneServersVirtualHost(cfgDict, serverBaseNameItsFor):
+    '''Delete a server's virtual host. To be called manually after deleting a single server, to clean up. '''
+# to do: call it
     print "\n"
     print "begin blowAwayOneServersVirtualHost()"
     try:
@@ -300,8 +309,9 @@ def blowAwayOneServersVirtualHost(cfgDict, serverBaseNameItsFor):
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
     print "end of blowAwayOneServersVirtualHost()"
     
-''' Blow away all clusters & servers. Also blows away any servers in each cluster, and blows away all server-level data sources etc. '''
+
 def blowAwayAllClustersServers(cfgDict):
+    '''Delete all clusters & servers. Also blows away any servers in each cluster, and blows away all server-level data sources etc. '''
     print "\n"
     print "begin blowAwayAllClustersServers()"
     try:
@@ -337,8 +347,9 @@ def blowAwayAllClustersServers(cfgDict):
     
     print "\nend of blowAwayAllClustersServers()"
 
-''' Blow away cluster. Also blows away any servers in cluster, server-level data sources etc. '''
+
 def blowAwayCluster(clusterName):
+    ''' Delete cluster. Also blows away any servers in cluster, server-level data sources etc. '''
     print "\n"
     print "begin blowAwayCluster()"
     try:
@@ -355,8 +366,9 @@ def blowAwayCluster(clusterName):
     
     print "end of blowAwayCluster()"
 
-''' Blow away a server, including its server-level jdbc provider, data sources etc. '''
+
 def blowAwayServer(nodeName, serverName):
+    ''' Delete a server, including its server-level jdbc provider, data sources etc. '''
     print "\n"
     print "begin blowAwayServer()"
     try:    
@@ -373,12 +385,13 @@ def blowAwayServer(nodeName, serverName):
     
     print "end of blowAwayServer()"
 
-''' Blow away all specified Jaas entries '''
+
 def blowAwayAllJaas(cfgDict):
+    ''' Delete all specified Jaas entries '''
     print "\n"
     print "begin blowAwayAllJaas()"
     try:
-        jaasList = AdminConfig.list('JAASAuthData').splitlines()
+        jaasList = Utilities.convertToList(AdminConfig.list('JAASAuthData'))
         print '\njaasList before is: ' 
         #print jaasList
         for jaasId in jaasList:
@@ -390,7 +403,7 @@ def blowAwayAllJaas(cfgDict):
             aliasToDelete = jae['alias']
             blowAwayOneJaas(aliasToDelete)
 
-        jaasList = AdminConfig.list('JAASAuthData').splitlines()
+        jaasList = Utilities.convertToList(AdminConfig.list('JAASAuthData'))
         print '\njaasList afterwards is: ' 
         #print jaasList
         for jaasId in jaasList:
@@ -402,8 +415,9 @@ def blowAwayAllJaas(cfgDict):
         
     print "\nend of blowAwayAllJaas()"
 
-''' Blow away a Jaas entry '''
+
 def blowAwayOneJaas(aliasToDelete):
+    ''' Delete a Jaas entry '''
     print "\n"
     print "begin blowAwayOneJaas()"
     try:
@@ -420,8 +434,9 @@ def blowAwayOneJaas(aliasToDelete):
         
     print "end of blowAwayOneJaas()"
 
-''' Blow away one server's JVM custom property '''
+
 def blowAwayOneServersJvmCustomProperty(nodeName, serverName, jvmCustomPropName):
+    ''' Delete one server's JVM custom property '''
     print "\n"
     print "begin blowAwayOneServersJvmCustomProperty()"
     try:
@@ -438,8 +453,9 @@ def blowAwayOneServersJvmCustomProperty(nodeName, serverName, jvmCustomPropName)
         
     print "end of blowAwayOneServersJvmCustomProperty()"
 
-''' Blow away one server's JDBC Provider '''
+
 def blowAwayOneServersJdbcProvider(cellName, nodeName, serverName, dbType):
+    ''' Delete one server's JDBC Provider '''
     print "\n"
     print "begin blowAwayOneServersJdbcProvider()"
     try:
@@ -456,8 +472,9 @@ def blowAwayOneServersJdbcProvider(cellName, nodeName, serverName, dbType):
         
     print "end of blowAwayOneServersJdbcProvider()"
 
-''' Blow away one server's datasource '''
+
 def blowAwayOneServersDatasource(cellName, nodeName, serverName, dbType, dataSourceName):
+    ''' Delete one server's datasource '''
     print "\n"
     print "begin blowAwayOneServersDatasource()"
     try:
@@ -474,8 +491,9 @@ def blowAwayOneServersDatasource(cellName, nodeName, serverName, dbType, dataSou
         
     print "end of blowAwayOneServersDatasource()"
 
-''' Blow away one cluster's datasource '''
+
 def blowAwayOneClustersDatasource(clusterName, dbType, dataSourceName):
+    ''' Delete one cluster's datasource '''
     print "\n"
     print "begin blowAwayOneClustersDatasource()"
     try:
@@ -494,6 +512,7 @@ def blowAwayOneClustersDatasource(clusterName, dbType, dataSourceName):
 
 
 def blowAwayOneServersQueueConnectionFactory(cellName, nodeName, serverName, factoryName):
+    '''Delete Queue Connection Factory for one server '''
     print "\n"
     print "begin blowAwayOneServersQueueConnectionFactory()"
     try:
@@ -512,6 +531,7 @@ def blowAwayOneServersQueueConnectionFactory(cellName, nodeName, serverName, fac
 
 
 def blowAwayOneClustersQueueConnectionFactory(cellName, clusterName, factoryName):
+    '''Delete Queue Connection Factory for one cluster '''
     print "\n"
     print "begin blowAwayOneClustersQueueConnectionFactory()"
     try:
@@ -530,6 +550,7 @@ def blowAwayOneClustersQueueConnectionFactory(cellName, clusterName, factoryName
 
 
 def blowAwayOneServersQueue(cellName, nodeName, serverName, queueName):
+    '''Delete queue for one server '''
     print "\n"
     print "begin blowAwayOneServersQueue()"
     try:
@@ -548,6 +569,7 @@ def blowAwayOneServersQueue(cellName, nodeName, serverName, queueName):
 
 
 def blowAwayOneClustersQueue(cellName, clusterName, queueName):
+    '''Delete queue for one cluster '''
     print "\n"
     print "begin blowAwayOneClustersQueue()"
     try:
@@ -565,8 +587,8 @@ def blowAwayOneClustersQueue(cellName, clusterName, queueName):
     print "end of blowAwayOneClustersQueue()"
 
 
-''' Blow away one server's Message Listener Port '''
 def blowAwayOneServersListenerPort(cellName, nodeName, serverName, listenerName):
+    '''Delete server's Message Listener Port '''
     print "\n"
     print "begin blowAwayOneServersListenerPort()"
     try:
@@ -583,8 +605,9 @@ def blowAwayOneServersListenerPort(cellName, nodeName, serverName, listenerName)
         
     print "end of blowAwayOneServersListenerPort()"
 
-''' Blow away specified replication domain  '''
+
 def blowAwayOneRepDomain(cellName, domainName):
+    '''Delete specified replication domain  '''
     print "\n"
     print "begin blowAwayOneRepDomain()"
     
@@ -605,8 +628,9 @@ def blowAwayOneRepDomain(cellName, domainName):
         
     print "end of blowAwayOneRepDomain()"
 
-''' Blow away all replication domains in config file that also have servers specified in same config file '''
+
 def blowAwayAllRepDomains(cfgDict):
+    '''Delete all replication domains in config file that also have servers specified in same config file '''
     print "\n"
     print "begin blowAwayAllRepDomains()"
     
@@ -655,6 +679,7 @@ def blowAwayAllRepDomains(cfgDict):
 
 
 def blowAwayOneServersAsynchBeanWorkManager(nodeName, serverName, workManagerName):
+    '''Delete asych bean work manager for one server '''
     print "\n"
     print "begin blowAwayOneServersAsynchBeanWorkManager()"
     try:
@@ -673,6 +698,7 @@ def blowAwayOneServersAsynchBeanWorkManager(nodeName, serverName, workManagerNam
 
 
 def blowAwayOneClustersAsynchBeanWorkManager(clusterName, workManagerName):
+    '''Delete asych bean work manager for one cluster '''
     print "\n"
     print "begin blowAwayOneClustersAsynchBeanWorkManager()"
     try:
@@ -691,22 +717,9 @@ def blowAwayOneClustersAsynchBeanWorkManager(clusterName, workManagerName):
 
 
 #--------------------------------------------------------------------
-# main, as it were
-#--------------------------------------------------------------------
-#when this module is being called from another script, import the other modules
-#  modules are expected to be in the directory we appended to search path in the top-level script
-#  or in the current working directory that wsadmin was called from
-if __name__ !="__main__":
-        #print "\n begin imports for when this script is not top-level"
-        import ItemExists 
-        import wini
-
-#endIf
-
-#--------------------------------------------------------------------
 # main
 #--------------------------------------------------------------------
-#when this module is being run as top-level, call the blowAwayEnv() function
+#when this module is being run as top-level, call the function
 if __name__=="__main__":
     usage = " "
     usage = usage + " "

@@ -78,7 +78,7 @@ def get_node_name_list():
         server_entry_list = convertToList(AdminConfig.list('ServerEntry', node_id))
         first_id = server_entry_list[0]
         if first_id.startswith('nodeagent'):
-            node_name = AdminConfig.showAttribute(first_id,'serverName')
+            node_name = AdminConfig.showAttribute(node_id,'name')
             node_list.append(node_name)
 
     return node_list

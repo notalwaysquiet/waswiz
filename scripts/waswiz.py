@@ -1,3 +1,4 @@
+'''Python v2.7 script framework for configuring WAS (Websphere Application Server) v9 using the builtin Python implementation on Java platform (wsadmin engine). Script reads plain-text config files in windows ini format, analyzes current WAS cell, and presents menus on the commandline. Most common configuration items are supported, including clustered or unclustered server, virtual host, datasources for a variety of JDBC providers, MQ queues and queue connection factory etc.'''
 ###############################################################################
 # WebSphere 9x script
 # Copyright (c) Hazel Malloy 2022
@@ -51,8 +52,8 @@ if __name__=="__main__":
         sys.path.append(scripts_dir)
 
         #----------------------------------------------------------------------
-        # Find the config file
-        # we expect the config_files dir to be a sister dir of pwd
+        # Find the config file.
+        # We expect the config_files dir to be a sister dir of pwd
         parent_dir = os.path.split(scripts_dir)[0]
         config_dir = os.path.join(parent_dir, 'config_files')
         config_filename = sys.argv[0]
@@ -65,8 +66,8 @@ if __name__=="__main__":
         print "configFile: " + configFile
         '''
         #----------------------------------------------------------------------
-        # Import all the modules this module uses at runtime
-        # we expect these modules to be in the directory we just appended
+        # Import all the modules this module uses at runtime.
+        # We expect these modules to be in the directory we just appended
         #   to search path
         import ConfigFile
         import UserInterface
