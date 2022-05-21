@@ -23,7 +23,7 @@ There are several benefits to scripting for WAS administration. The most obvious
 Note that Websphere v5-8.5.5 used Python 2.1 for its wsadmin engine. I have recently updated the scripts for the (slightly) newer Python v2.7 used by WAS v9. The Python version supported by current Websphere is now only 10 years old now, instead of 20 years old.
 
 ## Design & refactoring notes
-When I wrote the scripts initially I didn't know Python very well. For example, I didn't know about multiline comments. I knew about PEP8 but hadn't read it, and didn't try to follow it since the IBM sample wsadmin scripts don't follow it at all. 
+When I wrote the scripts initially I didn't know Python very well. For example, I didn't know about multiline comments. I knew about [PEP8](https://pep8.org/) but hadn't read it, and didn't try to follow it since the IBM sample wsadmin scripts don't follow it at all. 
 
 Instead, I tried to keep the scripts as simple as possible, so that a sys admin or a Java developer with no prior Python knowledge would be able to edit them. 
 
