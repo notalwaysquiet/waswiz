@@ -1,4 +1,7 @@
-# Copyright (c) Hazel Malloy 2022 ###############################################################################
+'''UI module for waswiz script. Reads the config file, looks at the WAS cell, displays info from both, and provides interactive menus for the next level of modules such as Configurator and Destroyer.'''
+###############################################################################
+# Copyright (c) Hazel Malloy 2022
+###############################################################################
 
 import glob  # used in whatConfigFileMenu()
 import sys
@@ -171,7 +174,6 @@ def displayWASinfo():
     global nodeList
     global cellScopedWebsphereVariableList
     global jaasAuthList
-    global virtualHostList
     global serverList
 
     try:
@@ -247,11 +249,7 @@ def displayWASinfo():
         if WASvirtualHostList:                    
             display += "\n"
             display += sp1 + "Virtual hosts: \n"
-            for name in WASvirtualHostList:
-                if (name in virtualHostList):
-                    display += sp2star + name + "\n"
-                else:   
-                    display += sp2 + name + "\n"
+            display += sp2 + name + "\n"
         
         display += "\n\n"
         display += sp1 + "* indicates that an item of the same name is found in your config file \n"
@@ -272,11 +270,11 @@ def getConfigInfo(configFile):
     global cellScopedWebsphereVariableList
     global nodeScopedWebsphereVariableList
     global jaasAuthList
-    global virtualHostList
     global serverList
     global baseServerList
     # serverInfoDict is used in whatServerMenu()
     global serverInfoDict
+    global virtualHostList
     # queueConnectionFactorySetList is used in menuForCellThings()
     # this is for cell defaults for qcf, mainly for pool settings, e.g., timeouts
     global queueConnectionFactorySetList
@@ -291,9 +289,9 @@ def getConfigInfo(configFile):
     cellScopedWebsphereVariableList = []
     nodeScopedWebsphereVariableList = []
     jaasAuthList = []
-    virtualHostList = []
     serverList = []
     baseServerList = []
+    virtualHostList = []
     queueConnectionFactorySetList = []
     hasCyberarkConfig = "false"
     hasCyberarkOptions = "false"
@@ -351,10 +349,9 @@ def getConfigInfo(configFile):
                 else:                        
                     serverName = baseServerName + str(nodeNumber)
                     serverList.append(serverName)
-
                 hostsWebApps = si['hostsWebApps']
                 if (hostsWebApps == 'true'):
-                    virtualHostName = si['virtualHostName']
+                    virtualHostName = Configurator.getVirtualHostName(serverInfoDict, baseServerName)
                     virtualHostList.append(virtualHostName)
 
         # optional config items below here
@@ -448,6 +445,7 @@ def displayConfigInfo(config_file):
                     display += sp2star + name + "\n"
                 else:   
                     display += sp2 + name + "\n"
+
         if virtualHostList:                    
             display += "\n"
             display += sp1 + "Virtual hosts: \n"

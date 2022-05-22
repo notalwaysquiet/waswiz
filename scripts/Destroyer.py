@@ -253,9 +253,10 @@ def blowAwayAllVirtualHosts(cfgDict):
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
         for serverInfoKey in serverInfoDict.keys():
             si = serverInfoDict[serverInfoKey]
+            baseServerName = si['baseServerName']
             hostsWebApps = si['hostsWebApps']
             if (hostsWebApps == 'true'):
-                virtualHostName = si['virtualHostName']
+                virtualHostName = Configurator.getVirtualHostName(serverInfoDict, baseServerName)
                 blowAwayOneVirtualHost(virtualHostName)
 
     except:
@@ -763,6 +764,7 @@ if __name__=="__main__":
         # Import all the modules this module uses at runtime
         # we expect these modules to be in the directory we just appended
         #   to search path
+        import Configurator
         import ItemExists
         import Utilities
         import wini
@@ -776,6 +778,7 @@ else:
     # being run as module, not top-level script
     import AdminConfig
 
+    import Configurator
     import ItemExists
     import Utilities
     import wini

@@ -1,6 +1,14 @@
-'''Python v2.7 script framework for configuring WAS (Websphere Application Server) v9 using the builtin Python implementation on Java platform (wsadmin engine). Script reads plain-text config files in windows ini format, analyzes current WAS cell, and presents menus on the commandline. Most common configuration items are supported, including clustered or unclustered server, virtual host, datasources for a variety of JDBC providers, MQ queues and queue connection factory etc.'''
+'''Python v2.7 script framework for configuring WAS (Websphere Application Server) v9 using the builtin Python implementation on Java platform (wsadmin engine). Script reads plain-text config files in windows ini format, analyzes current WAS cell, and presents menus on the commandline. Most common configuration items are supported, including clustered or unclustered server, virtual host, datasources for a variety of JDBC providers, MQ queues and queue connection factory etc.
+
+In some instances, if there is an Exception during the run the script will attempt to keep on going. When that occurs, it is easy to miss seeing it and assume that all went well. To prevent this happening, it is recommended to run script with command like the following:
+
+sudo /opt/IBM/wasv9/profiles/dmgrPlum/bin/wsadmin.sh -f waswiz.py cheetah_v1_0.ini 2>&1 | tee ../logs/log
+
+... and then search in the log file to make sure "Exception" does not occur, for example with the following command:
+grep -e Exception ../logs/log
+
+'''
 ###############################################################################
-# WebSphere 9x script
 # Copyright (c) Hazel Malloy 2022
 ###############################################################################
 

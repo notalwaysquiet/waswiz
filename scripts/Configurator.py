@@ -1,73 +1,8 @@
+'''Module of waswiz. Contains methods for working with config file and provides facade methods for calling the modules that in turn call the wsadmin commands to change the WAS cell config. Thus separation is provided between code that navigates through the config file and code that navigates through the WAS cell config. The config file information is stored in nested dict structure, and wsadmin output is always string, so if the code were mixed together, it would be very tedious and confusing to maintain.'''
 ###############################################################################
-# WebSphere 9x script
 # Copyright (c) Hazel Malloy 2022
 ###############################################################################
 # Notes
-#   This Python module includes the following procedures:
-#       getWasVersion
-#       createEnvironmentFromConfigFile
-#       limitLTPACookiesToSSLOnly
-#       doWebsphereVariables
-#       doNodeLevelWebsphereVariables
-#       doJaasEntries
-#       createVirtualHosts - not currently called anywhere
-#       createOneVirtualHost
-#       createServer
-#       addServersToCluster
-#       setPorts
-#       setJvmProcessDefinition
-#       setJvmLogRolling
-#       createJvmCustomProps
-#       setTransactionServiceProperties
-#       setDefaultVirtualHost
-#       setWebContainerProperties
-#       setWebContainerThreadPoolProperties
-#       setWebContainerCustomProperties
-#       setSessionCookieSettings
-#       extractServerArchive
-#       createOneServersJdbcProviders
-#       createOneServersDatasources
-#       addOneServersDatasourcesCustomProps
-#       createOneServersQueueConnectionFactories
-#       modifyOneServersQCFPoolProps
-#       modifyOneQCFPool
-#       modifyAllQCFPoolPropsInCell
-#       createOneServersQueue
-#       createOneServersListenerPorts
-#       createOneServersJMSActivationSpecs
-#       createOneServersReplicationDomain
-#       addHTTPSessionManagerToDomain
-#       enableM2MSessionReplication
-#       createSharedLibraries
-#       createServerClassLoader
-#       modifyAsynchBeanDefaultWorkManager
-#       createAsynchBeanNonDefaultWorkManagers
-#       setCyberArkOptions
-#       cyberArkIt
-#       modifyHttpQueueTuningParams
-#       doServer
-#       doServers
-#   
-#
-#   . . . . which call the following Jython scripts (not listed in order):
-#   WebsphereVariables.py
-#   Jaas.py
-#   Virtualhosts.py
-#   ServerImport.py
-#   ServerCluster.py
-#   ServerPorts.py
-#   Jvm.py
-#   JdbcProviders.py
-#   ServerArchive.py
-#   Datasources.py
-#   WebContainer.py
-#   wini.py (config file parser)
-#   ItemExists.py
-#   Mq.py
-#   Library.py
-#   ClassLoader.py
-#   CyberarkDefaults.py
-#
 # Call this module from a script that reads & validates a custom config file &
 #   then calls the appropriate methods to create &/or configure the desired WAS settings
 #   for a specific use case, e.g., configure existing server or create whole WAS environment
@@ -81,11 +16,12 @@
 
 import sys
 import time
+
 # wsadmin objects used in this module
 import AdminConfig
 import AdminControl
 
-# modules of was_configurator
+# modules of waswiz
 import ClassLoader
 import ConfigFile
 import ContainerServices
@@ -114,8 +50,9 @@ import wini
 import WorkManagers
 
 
-'''return a string containing the WAS major version, e.g., "9"'''
+
 def getWasVersion():
+    '''Return a string containing the WAS major version, e.g., "9"'''
     try:
         server = AdminControl.completeObjectName('type=Server,name=dmgr,*')
         versionString = AdminControl.getAttribute(server, 'serverVersion')
@@ -132,8 +69,8 @@ def getWasVersion():
         sys.exit(1)
         
 
-''' Create WAS environment from config file. (cell and node must already exist as named in file). May not currently being called anywhere. Also, see UserInterface.py '''
 def createEnvironmentFromConfigFile(configFile):
+    '''Create WAS environment from config file. (cell and node must already exist as named in file). May not currently being called anywhere. Also, see UserInterface.py '''
     try:
         print "\n\n\n"  
         print "---------------------------------------------------------------"
@@ -174,9 +111,9 @@ def limitLTPACookiesToSSLOnly():
     
 
 
-''' Websphere variables.  These ones are global, per cell.
-  jvm custom props can use these for substitutions'''
 def doWebsphereVariables(cellName, cfgDict):
+    ''' Websphere variables.  These ones are global, per cell. jvm custom props can use these for substitutions'''
+
     try:
         environmentGenInfo = cfgDict['cellInfo']
         
@@ -206,13 +143,14 @@ def doWebsphereVariables(cellName, cfgDict):
         sys.exit(1)
 
 
-''' Websphere variables to be created at node level for each server node Primarily needed for JDBC driver locations. Vars for most driver providers are BUILT-IN with empty string vals:
- * DB2
- * Oracle
- * Microsoft SQL Server
- * BUT NOT MySql for some reason
- We must modify the blank vars at node level. In theory could be created only at cell level, but the blank node-level var would override cell-level one if we didn't remove it. IBM recommends to manage these at node-level not cell-level.'''
 def doNodeLevelWebsphereVariables(cellName, cfgDict):
+    ''' Websphere variables to be created at node level for each server node Primarily needed for JDBC driver locations. Vars for most driver providers are BUILT-IN with empty string vals:
+     * DB2
+     * Oracle
+     * Microsoft SQL Server
+     * BUT NOT MySql for some reason
+    We must modify the blank vars at node level. In theory could be created only at cell level, but the blank node-level var would override cell-level one if we didn't remove it. IBM recommends to manage these at node-level not cell-level.'''
+
     nodeName = "nodeName not assigned yet"
     try:
         websphereVariablesDict = wini.getPrefixedClauses(cfgDict,'websphereVariables:' + 'nodeLevel' +':')
@@ -251,12 +189,9 @@ def doNodeLevelWebsphereVariables(cellName, cfgDict):
         print "\n\n   Exiting . . . \n\n"
         sys.exit(1)
 
-#--------------------------------------------------------------------
-# jaas / j2c entries
-#  these are global, per cell
-#  must be set up before datasources
-#--------------------------------------------------------------------
+
 def doJaasEntries(cfgDict):
+    '''jaas / j2c entries. These are global, per cell. Must be set up before datasources'''
     try:
 
         # Suppress dmgr node name from being prefixed to new JAAS/J2C authentication entries
@@ -297,19 +232,34 @@ def doJaasEntries(cfgDict):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-# Virtual Hosts
-#--------------------------------------------------------------------
-# these are set up per cell (Environment > Virtual hosts)
-# vh's can have 2 kinds of entries: 
-#   1) for requests via web server 2) for requests via app server's embedded http server
-# for 2nd kind we have to look at server info, for 1st kind, we don't
-# all vh's have the 2nd kind, even if server is not clustered
-# not all virtual hosts have 1st kind (e.g., coloured servers for Dev)
-# for 2nd kind we use plan 2b in ports new plans.xls to
-# create vh for a server or a set of clustered servers at one go (server1 & server2 on same ports + portOffsetForClusterMembers)
-#--------------------------------------------------------------------
+def getVirtualHostName(serverInfoDict, baseNameOfServerItsFor):
+    '''Construct a name for a server's virtual host, based on whether it is clustered or not.'''
+    try:
+        foundServer = "false"
+        for serverInfoKey in serverInfoDict.keys():
+            if (foundServer == "true"):
+                break
+            si = serverInfoDict[serverInfoKey]
+            baseServerName = si['baseServerName']
+            if (baseServerName == baseNameOfServerItsFor):
+                foundServer = "true"
+                isClustered = si['isClustered']
+                if isClustered == 'true':
+                    clusterName = si['clusterName']
+                    virtualHostName = clusterName + '_host'
+                else:
+                    virtualHostName = baseServerName + '_host'
+
+        return virtualHostName
+
+    except:
+            print "\n\nException in getVirtualHostName() for server: " + baseNameOfServerItsFor
+            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+            sys.exit(1)
+
+
 def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
+    '''These are set up per cell (Environment > Virtual hosts). One per server unless server is clustered, then one per cluster. Offsets are used for port numbers so that in the lower environments, multiple cluster members can co-exist on same host.'''
     try:
         print "\n"  
         print "---------------------------------------------------------------"
@@ -335,71 +285,38 @@ def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
         print "httpPortOffset is: " + str(httpPortOffset)
         print "httpsPortOffset is: " + str(httpsPortOffset)
 
+        virtualHostName = "virtualHostName not defined yet"
+
+        # Builtin sets are not supported in Pythonv2.1 -- i.e., versions of WAS below v9, so we make our own set
+        nodeHostSet = []
+
         try:
-            virtualHostName = "virtualHostName not defined yet"
-            #collect list of vh's listed under server clause in config
-            #use this list later on to make sure we don't create 
-            #   type 1 vh's (external web-server type) for servers that aren't in config file
-            virtualHostList = []
             serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
-
+            foundServer = "false"
             for serverInfoKey in serverInfoDict.keys():
+                if (foundServer == "true"):
+                    break
                 si = serverInfoDict[serverInfoKey]
                 baseServerName = si['baseServerName']
                 if (baseServerName == baseNameOfServerItsFor):
-
+                    foundServer = "true"
                     hostsWebApps = si['hostsWebApps']
+
                     if (hostsWebApps == 'true'):
+                        virtualHostName = getVirtualHostName(serverInfoDict, baseServerName)
 
-                        nodeList = si['nodeList'].split()
-                        nodeHostList = si['nodeHostList'].split()
-                        #print '\n\nbaseServerName is: ' + baseServerName
-
-                        if len(nodeList) != len(nodeHostList):
-                            print "\n\nError in server info for server: " + baseServerName
-                            print "    Config file must supply a host name for every node in node list in server info"
-                            print "    Can't make virtual host without full & correct host alias info."
-                            print '    len(nodeList) is: ' + str(len(nodeList))
-                            print '    len(nodeHostList) is: ' + str(len(nodeHostList))
-                            sys.exit(1)
-                    else:
-                        print "\n   . . . not making a virtual host for server: " + baseNameOfServerItsFor
-                        print " because hostsWebApps is false for this server in config file."
-                        return
-            
-        except:
-            print "\n\nException in createOneVirtualHost() when reading virtual host values from config file"
-            print "    when reading values for server: " + baseServerName
-            print "\n\nStack trace is: "
-            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
-            sys.exit(1)
-        try:
-
-            #read through the same loop again, each time do a step in the process: create vh's
-            for serverInfoKey in serverInfoDict.keys():
-                si = serverInfoDict[serverInfoKey]
-                baseServerName = si['baseServerName']
-                if (baseServerName == baseNameOfServerItsFor):
-            
-                    hostsWebApps = si['hostsWebApps']
-                    if (hostsWebApps == 'true'):
-                    
-                        virtualHostName = si['virtualHostName']
                         if ItemExists.virtualHostExists(virtualHostName):
                             print "\n   . . . skipping a step:"                
                             print "   Virtual host already exists: " + virtualHostName
                             return
+
                         else:
-                            virtualHostList.append(virtualHostName)
                             Virtualhosts.createVirtualHost(virtualHostName)
-                            #stop looping through servers
-                            break
+
                     else:
-                        print "\n\nError in server info for server: " + baseServerName
-                        print "    Config file value for hostsWebApps must be true for virtual host to be created."
-                        print "    Config file value for hostsWebApps is: " + hostsWebApps
-                        print ""
-                        sys.exit(1)
+                        print "\n   . . . not making a virtual host for server: " + baseNameOfServerItsFor
+                        print " because hostsWebApps is false for this server in config file."
+                        return
         except:
             print "\n\nException in createOneVirtualHost() when creating virtual host: " + virtualHostName
             sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
@@ -407,7 +324,6 @@ def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
         try:
 
             #read through the same loop again, each time do a step in the process: set entries for embedded-http server
-            virtualHostName = 'virtualHostName not defined yet'
             node1PortList = 'node1PortList not defined yet'
             node2PortList = 'node2PortList not defined yet'
             foundServer = "false"
@@ -419,12 +335,11 @@ def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
                 if (baseServerName == baseNameOfServerItsFor):
                     foundServer = "true"
                     hostsWebApps = si['hostsWebApps']
-                    if (hostsWebApps == 'true'):
 
+                    if (hostsWebApps == 'true'):
                         nodeList = si['nodeList'].split()
                         nodeHostList = si['nodeHostList'].split()
                         server1PortRangeStart = si['portRangeStart']
-                        virtualHostName = si['virtualHostName']
                         isClustered = si['isClustered']
                         portOffsetForClusterMembers = si['portOffsetForClusterMembers']
                         createAsteriskHostAlias = si['createAsteriskHostAlias']
@@ -455,10 +370,9 @@ def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
                                 print "\n\n"
                                 print "               Wow!! more than 2 nodes!!"
                                 print "Please add remaining ports to virtual host manually \n\n"
+                                sys.exit("script only supports up to 2 nodes")
 
                         # keep track of hostnames so we do not do duplicate hostnames more than once
-                        #builtin sets are not supported in version of python in WASv7, so we make our own set
-                        nodeHostSet = []
                         for hostname in nodeHostList:
                             if (hostname in nodeHostSet):
                                 break
@@ -505,38 +419,43 @@ def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
                                for port in node2PortList:
                                     Virtualhosts.setVirtualHostEntry(virtualHostName, '*', port)
                                     
-        except KeyError:
-            print "\n\nException in createOneVirtualHost() when setting embedded-server entry for virtual host: " + virtualHostName
-            print "      . . . a required attribute is missing from config file."
-            print "      Please see stack trace for name of the missing attribute."
-            print "\n\nStack trace is: "
-            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
-            sys.exit(1)
-        
         except:
             print "\n\nException in createOneVirtualHost() when setting embedded-server entry for virtual host: " + virtualHostName
             print "\n\nStack trace is: "
             sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
             sys.exit(1)
+
         try:
             print "\n\n    Starting on external web-server type of virtual host entry now (if any) . . . "
-            #should only be 1 vh in the list, I think
-            for type2VirtualHost in virtualHostList:
-                virtualHostDict = wini.getPrefixedClauses(cfgDict,'virtualHost:' + type2VirtualHost)
 
-                # see if there's additional host/port entries (type 1) to make for the vh
-                # note: 
-                #   virtual host name must *also* be listed in server info for some server 
-                #   in order for virtual host to have been created
-                for virtualHostKey in virtualHostDict.keys():
-                    vh = virtualHostDict[virtualHostKey]
-                    virtualHostName = type2VirtualHost
-                    hostname = vh['hostname'].strip()
-                    port = str(vh['port']).strip()
-                    #print '\n\nvirtualHostName is: ' + virtualHostName
-                    #print 'port is: ' + str(port)
-                    #print 'hostname is: ' + hostname
-                    Virtualhosts.setVirtualHostEntry(virtualHostName, hostname, port)
+            foundServer = "false"
+            for serverInfoKey in serverInfoDict.keys():
+                if (foundServer == "true"):
+                    break
+                si = serverInfoDict[serverInfoKey]
+                baseServerName = si['baseServerName']
+                if (baseServerName == baseNameOfServerItsFor):
+                    foundServer = "true"
+                    hostsWebApps = si['hostsWebApps']
+                    if hostsWebApps == 'true':
+                        virtualHostDict = wini.getPrefixedClauses(cfgDict,'virtualHostWebserverEntry:' + baseNameOfServerItsFor)
+                        for virtualHostKey in virtualHostDict.keys():
+                            vh = virtualHostDict[virtualHostKey]
+                            hostname = vh['hostname'].strip()
+                            port = str(vh['port']).strip()
+                            #print '\n\nvirtualHostName is: ' + virtualHostName
+                            #print 'port is: ' + str(port)
+                            #print 'hostname is: ' + hostname
+                            Virtualhosts.setVirtualHostEntry(virtualHostName, hostname, port)
+
+        except KeyError:
+            print "\n\nException in createOneVirtualHost() when setting webserver entry for virtual host: " + virtualHostName
+            print "      . . . a required attribute is missing from config file."
+            print "      See stack trace for name of the missing attribute."
+            print "\n\nStack trace is: \n"
+            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+            sys.exit(1)
+
         except:
             print "\n\nException in createOneVirtualHost() when setting web-server entry for virtual host: " + virtualHostName
             print "\n\nStack trace is: "
@@ -551,8 +470,8 @@ def createOneVirtualHost(cfgDict, baseNameOfServerItsFor):
         sys.exit(1)
 
 
-''' Create server with specified full name from specified custom config file on specified node only. (cell and node must already exist as named in file).  Assumes sequence number has already been appended to base name whether clustered or not '''
 def createServer(cfgDict, nodeName, serverNameToCreate):
+    ''' Create server with specified full name from specified custom config file on specified node only. (cell and node must already exist as named in file).  Assumes sequence number has already been appended to base name whether clustered or not '''
     try:
         print "\n\n\n"  
         print "---------------------------------------------------------------"
@@ -587,12 +506,8 @@ def createServer(cfgDict, nodeName, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   Add server to cluster (if applic.)
-# if clustered, servers will also be created on all nodes in server's nodeList
-#if server is not clustered, any additional nodes in node list will be ignored
-#--------------------------------------------------------------------
 def addServersToCluster(cfgDict, serverNameToCluster):
+    '''Add server to cluster (if applic.). If clustered, servers will also be created on all nodes in server's nodeList. If server is not clustered, any additional nodes in node list will be ignored.'''
     try:
         clusterName = 'clusterName not defined yet'
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
@@ -635,12 +550,8 @@ def addServersToCluster(cfgDict, serverNameToCluster):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-# Set ports for specified server from specified custom config file
-# (cell and node must already exist as named in file)
-# if clustered, server will be created on all nodes in server's nodeList
-#--------------------------------------------------------------------
 def setPorts(cfgDict, serverNameToCreate):
+    '''Set ports for specified server from specified custom config file.  Cell and node must already exist as named in file.  If clustered, server will be created on all nodes in server's nodeList.'''
     try:
         wasVersion = getWasVersion()
         startPort = 0
@@ -853,10 +764,9 @@ def createJvmCustomProps(cfgDict, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   set server's transaction service properties, e.g., Total transaction lifetime timeout
-#--------------------------------------------------------------------
+
 def setTransactionServiceProperties(cfgDict, serverNameToCreate):
+    '''Set server's transaction service properties, e.g., Total transaction lifetime timeout.'''
     try:
         transactionServiceDict = ''
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
@@ -932,10 +842,8 @@ def setTransactionServiceProperties(cfgDict, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   set server's default virtual host
-#--------------------------------------------------------------------
 def setDefaultVirtualHost(cfgDict, serverNameToCreate):
+    '''Set server's default virtual host'''
     try:
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
         virtualHostName = 'virtualHostName not defined yet'        
@@ -947,7 +855,7 @@ def setDefaultVirtualHost(cfgDict, serverNameToCreate):
                 hostsWebApps = si['hostsWebApps']
 
                 if (hostsWebApps == 'true'):
-                    virtualHostName = si['virtualHostName']
+                    virtualHostName = getVirtualHostName(serverInfoDict, serverNameToCreate)
 
                     baseServerName = si['baseServerName']
                     nodeList = si['nodeList'].split()
@@ -967,10 +875,9 @@ def setDefaultVirtualHost(cfgDict, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   set server's web container properties, e.g., servlet caching
-#--------------------------------------------------------------------
+
 def setWebContainerProperties(cfgDict, serverNameToCreate):
+    '''Set server's web container properties, e.g., servlet caching.'''
     try:
         webContainerDict = ''
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
@@ -1052,10 +959,8 @@ def setWebContainerProperties(cfgDict, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   set server's web container properties, e.g., servlet caching
-#--------------------------------------------------------------------
 def setWebContainerThreadPoolProperties(cfgDict, serverNameToCreate):
+    '''Set server's web container properties, e.g., servlet caching.'''
     try:
         webContainerDict = ''
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
@@ -1137,10 +1042,8 @@ def setWebContainerThreadPoolProperties(cfgDict, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   set custom properties for a server's web container 
-#--------------------------------------------------------------------
 def setWebContainerCustomProperties(cfgDict, serverNameToCreate):
+    '''Set custom properties for a server's web container .'''
     try:
         webContainerCustomPropsDict = ''
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
@@ -1218,11 +1121,8 @@ def setWebContainerCustomProperties(cfgDict, serverNameToCreate):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#   set default session cookie properties for a server
-#   Can be overridden at app level if session management is overridden
-#--------------------------------------------------------------------
 def setSessionCookieSettings(cfgDict, serverNameToCreate):
+    '''Set default session cookie properties for a server.  Can be overridden at app level if session management is overridden.'''
     try:
         wasVersion = getWasVersion()
         defaultSessionCookieSettingsSecure = 'defaultSessionCookieSettingsSecure not defined yet'
@@ -1322,8 +1222,8 @@ def setSessionCookieSettings(cfgDict, serverNameToCreate):
         sys.exit(1)
     
 
-'''Make a configuration archive (car) file for each server. Binary zip of 5 or 6 files that define server, minus names etc. (car = Configuration ARchive)'''
 def extractServerArchive(cfgDict, serverNameToCreate):
+    '''Make a configuration archive (car) file for each server. Binary zip of 5 or 6 files that define server, minus names etc. (car = Configuration ARchive)'''
     try:
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
         carDict = cfgDict['serverConfigurationArchive']
@@ -1356,9 +1256,8 @@ def extractServerArchive(cfgDict, serverNameToCreate):
 
 
 
-'''extract configuration props file for each server. This is a flat text
-file including names and ids.'''
 def extractServerPropsFile(cfgDict, serverNameToCreate):
+    '''extract configuration props file for each server. This is a flat text file including names and ids.'''
     try:
         serverInfoDict = wini.getPrefixedClauses(cfgDict,'server:')
         carDict = cfgDict['serverConfigurationArchive']
@@ -1388,9 +1287,8 @@ def extractServerPropsFile(cfgDict, serverNameToCreate):
         sys.exit(1)        
 
 
-'''returns true if at least one datasource is defined in the server config
-file '''
 def serverHasAtLeastOneDatasource(cfgDict, baseServerName, theDbType):
+    '''Returns true if at least one datasource is defined in the server config file '''
     try:
         dataSourceName = "dataSourceName not defined yet"
         dataSourceDict = wini.getPrefixedClauses(cfgDict,'dataSource:' + baseServerName +':')
@@ -1409,13 +1307,9 @@ def serverHasAtLeastOneDatasource(cfgDict, baseServerName, theDbType):
         sys.exit(1)
 
 
-#--------------------------------------------------------------------
-#  JDBC Providers
-#  server/cluster must be created before jdbc provider
-#  creates provider at cluster level if server is clustered; otherwise at server level
-#  does not create provider if there are no datasources required for that db type
-#--------------------------------------------------------------------
+
 def createOneServersJdbcProviders(cfgDict, baseServerName):
+    ''' server/cluster must be created before jdbc provider.  Creates provider at cluster level if server is clustered; otherwise at server level.  Does not create provider if there are no datasources required for that db type'''
     try:
         environmentGenInfo = cfgDict['cellInfo']
         cellName = environmentGenInfo['cellName'].strip()
@@ -1476,10 +1370,7 @@ def createOneServersJdbcProviders(cfgDict, baseServerName):
 
 
 def createOneServersDatasources(cfgDict, baseServerName):
-#--------------------------------------------------------------------
-#   Datasources
-#   jdbc provider (per server or cluster) & associated jaas entries & WAS vars (per cell) must be created first
-#--------------------------------------------------------------------
+    '''Creae datasources for one server. Jdbc provider (per server or cluster) & associated jaas entries & WAS vars (per cell) must already exist.'''
     try:
         print "\nCreating JDBC providers, if necessary  ...\n"
         createOneServersJdbcProviders(cfgDict, baseServerName)
@@ -1666,6 +1557,7 @@ def createOneServersDatasources(cfgDict, baseServerName):
 
 
 def addOneServersDatasourcesCustomProps(cfgDict, baseServerName):
+    '''Add the custom properties specified in config file.'''
     try:
         print "\nCreating Datasource custom props, if necessary  ...\n"
         environmentGenInfo = cfgDict['cellInfo']
@@ -1739,6 +1631,7 @@ def addOneServersDatasourcesCustomProps(cfgDict, baseServerName):
         print msg
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
         sys.exit(1)
+
 
 def createArbitraryServersJdbcProviders(cfgDict, serverName):
     try:
@@ -1894,6 +1787,7 @@ def createArbitraryServersDatasources(cfgDict, serverName):
         sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
         sys.exit(1)
 
+
 def addOneArbitraryServersDatasourcesCustomProps(cfgDict, serverName):
     try:
         print "\nCreating Datasource custom props, if necessary  ...\n"
@@ -1934,10 +1828,7 @@ def addOneArbitraryServersDatasourcesCustomProps(cfgDict, serverName):
                         print "TBD: Datasource custom prop: " + dataSourceCustomPropertyName + " for arbitrary server name: " + serverName
                                 
                         Datasources.addCustomPropToServerLevelDb2Datasource(nodeName, serverName, jndiName, dataSourceCustomPropertyName, dataSourceCustomPropertyType, dataSourceCustomPropertyValue, dataSourceCustomPropertyDescription)
-                                
-                        
-                        
-                        
+
     except:
         msg = "\n\nException in addOneServersDatasourcesCustomProps() when creating datasource custom props for server: " + serverName
         msg = msg + "\n    dataSourceName: " + dataSourceName
@@ -1987,8 +1878,7 @@ def toggleCyberarkedDatasources(cfgDict, enableCyberarkOrOriginal):
                     # example of base server name: dev0_t1_lion_server
                     # slice off the "_server" from end of base name of server, so it can match on either server or cluster name (datasource is at cluster level if server is clustered)
                     serverOrClusterNameSubstring = baseServerName[:-7]
-                    
-                    
+
                     if enableCyberarkOrOriginal == "cyberark":
                         print ">>>>>>>>>>>>>>>>>>>>>>>>>"
                         print "scenario 1: we are disabling the originals (if not done already) and enabling the cyberarked ds's (if not done already)"
