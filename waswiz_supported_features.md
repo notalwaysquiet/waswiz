@@ -1,25 +1,25 @@
 # waswiz Supported Features
 
-## Features
-websphereVariables (cell or node level only)
-jaasAuthEntry (cell level only)
-virtualHostWebserverEntry  
-server
-serverConfigurationArchive
-jvmCustomProperty (server level)
-jvmProcessDefinition (server level)
-jvmLogRolling (server level)
-transactionService (server level)
-webContainer (server level) 
-webContainerThreadPool (server level)
-webContainerCustomProps (server level)
-dataSource (cluster level if server is clustered, server level otherwise)
-queue (cluster level if server is clustered, server level otherwise)
-queueConnectionFactory (cluster level if server is clustered, server level otherwise)
-jmsActivationSpec (cluster level if server is clustered, server level otherwise)
-sessionReplicationDomain (cluster level only)
-sharedLibrary (cluster level if server is clustered, server level otherwise)
-asynchBeanWorkManager (cluster level if server is clustered, server level otherwise)
+## Config Items
+* websphereVariables (cell or node level only)
+* jaasAuthEntry (cell level only)
+* virtualHostWebserverEntry  
+* server
+* serverConfigurationArchive
+* jvmCustomProperty (server level)
+* jvmProcessDefinition (server level)
+* jvmLogRolling (server level)
+* transactionService (server level)
+* webContainer (server level) 
+* webContainerThreadPool (server level)
+* webContainerCustomProps (server level)
+* dataSource (cluster level if server is clustered, server level otherwise)
+* queue (cluster level if server is clustered, server level otherwise)
+* queueConnectionFactory (cluster level if server is clustered, server level otherwise)
+* jmsActivationSpec (cluster level if server is clustered, server level otherwise)
+* sessionReplicationDomain (cluster level only)
+* sharedLibrary (cluster level if server is clustered, server level otherwise)
+* asynchBeanWorkManager (cluster level if server is clustered, server level otherwise)
 
 ## Actions
 There is a default action every time waswiz is run, which is to inspect the WAS cell it is connected to. You can also run this action from a menu item, e.g., for verification purposes after you have made a change.
