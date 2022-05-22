@@ -1,4 +1,4 @@
-# waswiz Supported Features
+# waswiz supported features
 
 ## Config Items
 * websphereVariables (cell or node level only)
