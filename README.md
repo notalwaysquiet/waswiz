@@ -2,7 +2,11 @@
 ## Summary
 Python v2.7 script framework for configuring WAS (Websphere Application Server) v9 using the builtin Python implementation on Java platform (wsadmin engine). Scripts read plain-text config files in windows ini format. Most common configuration items are supported, including clustered or unclustered server, virtual host, datasources for a variety of JDBC providers, MQ queues and queue connection factory etc. 
 
-## Supported modes, Websphere editions, Websphere versions, and platforms
+## How to use
+See [waswiz-instructions](https://github.com/notalwaysquiet/waswiz/blob/main/waswiz-instructions.md)
+
+## Supported features, modes, Websphere editions, Websphere versions, and platforms
+For list of supported features, see [waswiz_supported_features](https://github.com/notalwaysquiet/waswiz/blob/main/waswiz_supported_features.md).
 The script can be run in either batch mode or via interactive text menus.
 
 Supports traditional Websphere only (not Liberty), in ND edition or standalone base WAS ("server1"). 
