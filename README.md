@@ -45,7 +45,7 @@ Future work I am planning for waswiz:
 * upgrade the comments. E.g., make sure every method has a (multiline) comment
 * refactor to clarify better how data is passed around within the scripts, especially in UserInterface.py
 
-See also [to_do.md](https://github.com/notalwaysquiet/waswiz/blob/main/to_do.md) and the [Issues](https://github.com/notalwaysquiet/waswiz/issues) section of this repo. 
+For details see the [Issues](https://github.com/notalwaysquiet/waswiz/issues) section of this repo. 
 
 
 H Malloy
