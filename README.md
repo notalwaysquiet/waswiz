@@ -10,7 +10,7 @@ Supports traditional Websphere only (not Liberty), in ND edition or standalone b
 The earlier versions of these scripts were thoroughly tested on Windows, Linux and AIX as a result of creating multiple dev, qa and prod environments and migrating them repeatedly, e.g., from wasv5 to wsav6.1, wasv6.1 to 7, and from wasv7 to 8.5.5. Developers ran the scripts on Windows to create their local sandbox environment. I have done a lot of refactoring recently, and the current version has not been thoroughly tested yet. I am only testing on Linux at the moment.
 
 ## Brief history
-These are a rewrite of scripts that I originally wrote for a client. I and a dozen or so other people used the scripts for a period of 12 or 13 years, on Websphere versions 5.1 to 8.5.5.x. 
+These are a rewrite of scripts that I originally wrote for a client. I and a dozen or so other people used the scripts for a period of 12 or 13 years, on Websphere versions 5 to 8.5.5.x. 
 
 ## How does it work?
 Script reads the plain-text windows ini-format config file and then compares it to the existing config in the WAS cell it is connected to. It displays summary of both configs (config file and cell), with asterisk to show which items are in both the config file and the WAS cell. Script displays nested menus of common user actions, such as "Add" config item(s) to cell, and "Replace" existing config item(s) in cell with the ones in the config file.

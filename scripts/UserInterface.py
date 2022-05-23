@@ -7,13 +7,16 @@ import glob  # used in whatConfigFileMenu()
 import sys
 import os
 
+# wsadmin objects
 import AdminConfig
 import AdminControl
 import AdminTask
 
+# waswiz modules (must be in path, e.g., same dir as this module)
 import ConfigFile
 import Configurator
 import Destroyer
+import ItemExists
 import Utilities
 import wini
 
@@ -68,21 +71,21 @@ def getSpacer(count):
     return spacer
 
 
-''' Do setup (read config file and look at existing WAS cell) and start the user interface (show "page one") '''
 def start(config_file):
+    ''' Do setup (read config file and look at existing WAS cell) and start the user interface (show "page one") '''
     getWASinfo()
     getConfigInfo(config_file)
     pageOne(config_file)
 
 
-''' Re-load the WAS infor and then start the user interface at "page one" '''
 def reDisplaypageOne(config_file):
+    ''' Re-load the WAS infor and then start the user interface at "page one" '''
     getWASinfo()
     pageOne(config_file)
 
 
-''' Look into existing WAS cell config and populate global variables about it.'''
 def getWASinfo():
+    ''' Inspect existing WAS cell and populate global variables about it.'''
     # variables for stuff already in the cell we are talking to
     global WAScellName
     global WASnodeIdList
@@ -93,7 +96,8 @@ def getWASinfo():
     global WASvirtualHostList 
     global WASserverIdList 
     global WASserverList 
-    
+
+    # initialize the above global variables
     WASjaasAuthList = []
     WASnodeList = []
     WAScellScopedWebsphereVariableList = []
@@ -156,8 +160,8 @@ def getWASinfo():
         sys.exit(1)
 
 
-''' Display info gotten by getWASinfo(), cross-referenced against config file with '*' to indicate thing is found in both. Part of "page one".'''
 def displayWASinfo():
+    ''' Display info gotten by getWASinfo(), cross-referenced against config file with '*' to indicate thing is found in both. Part of "page one".'''
     # stuff already in the cell we are talking to
     # got populated by getWASinfo()
     global WAScellName
@@ -261,8 +265,8 @@ def displayWASinfo():
         sys.exit(1)
 
 
-''' Read the config file and populate global variables about it.'''
 def getConfigInfo(configFile):
+    ''' Read the config file and populate global variables about it.'''
     # variables for stuff from the config file
     global cfgDict
     global cellName
@@ -272,7 +276,7 @@ def getConfigInfo(configFile):
     global jaasAuthList
     global serverList
     global baseServerList
-    # serverInfoDict is used in whatServerMenu()
+    # serverInfoDict is used in whatServerMenu(config_file)
     global serverInfoDict
     global virtualHostList
     # queueConnectionFactorySetList is used in menuForCellThings()
@@ -383,8 +387,8 @@ def getConfigInfo(configFile):
         sys.exit(1)
 
 
-''' Display info gotten by getConfigInfo(), cross-referenced against existing WAS cell, with '*' to indicate thing is found in both. Part of "page one". '''
 def displayConfigInfo(config_file):
+    ''' Display info gotten by getConfigInfo(), cross-referenced against existing WAS cell, with '*' to indicate thing is found in both. Part of "page one". '''
     try:
         display = div1 + "\n"
         display += "Specified in your config file  \n"
@@ -471,8 +475,8 @@ def displayConfigInfo(config_file):
         sys.exit(1)
 
 
-''' Using info already gotten by getConfigInfo(), populate additional global variables about config file: isClustered. '''
 def getServerClusterConfigInfoDetail(baseServerName):
+    ''' Using info already gotten by getConfigInfo(), populate additional global variables about config file: isClustered. '''
     global serverIsClusteredInConfigFile
     global clusterNameInConfigFile
     global nodeNameInConfigFile
@@ -493,8 +497,8 @@ def getServerClusterConfigInfoDetail(baseServerName):
                     nodeNameInConfigFile = si['nodeList']
 
 
-''' Using info already gotten by getConfigInfo(), populate additional global list variables about config file: jvm custom props, data sources, qcfs, queues, jms actspecs, asynch bean work mgrs. '''
 def getServerConfigInfoDetail(baseServerName):
+    ''' Using info already gotten by getConfigInfo(), populate additional global list variables about config file: jvm custom props, data sources, qcfs, queues, jms actspecs, asynch bean work mgrs. '''
     global jvmCustomPropertyList
     global dataSourceList
     global queueConnectionFactoryList
@@ -565,8 +569,8 @@ def getServerConfigInfoDetail(baseServerName):
         sys.exit(1)
 
 
-''' Using info already gotten by getWASinfo(), populate additional global list variables about existing WAS cell: jvm custom props, data sources, qcfs, queues, jms actspecs, asynch bean work mgrs. '''
 def getServerWASinfoDetail(baseServerName):
+    ''' Using info already gotten by getWASinfo(), populate additional global list variables about existing WAS cell: jvm custom props, data sources, qcfs,     queues, jms actspecs, asynch bean work mgrs. '''
     global WASserverName
     global WASclusterName
     global WASjvmCustomPropertyList
@@ -683,8 +687,8 @@ def getServerWASinfoDetail(baseServerName):
         sys.exit(1)
 
 
-''' Display info gotten by getServerWASinfoDetail(), cross-referenced against config file with '*' to indicate thing is found in both. '''
 def displayWASServerDetail(config_file, baseServerName):
+    ''' Display info gotten by getServerWASinfoDetail(), cross-referenced against config file with '*' to indicate thing is found in both. '''
     try:
         if (baseServerName == None):
             sys.exit("No server name supplied")
@@ -810,8 +814,8 @@ def displayWASServerDetail(config_file, baseServerName):
         sys.exit(1)
 
 
-''' Display info gotten by getServerConfigInfoDetail(), cross-referenced against existing WAS cell with '*' to indicate thing is found in both. '''
-def displayServeConfigInfoDetail(config_file, baseServerName):
+def displayServerConfigInfoDetail(config_file, baseServerName):
+    ''' Display info gotten by getServerConfigInfoDetail(), cross-referenced against existing WAS cell with '*' to indicate thing is found in both. '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -923,8 +927,8 @@ def displayServeConfigInfoDetail(config_file, baseServerName):
         sys.exit(1)
 
 
-''' Display first page of user interface: info about existing WAS cell, and what is specified in the config file, cross-referenced against each other, plus menu of supported user actions. '''
 def pageOne(config_file):
+    ''' Display first page of user interface: info about existing WAS cell, and what is specified in the config file, cross-referenced against each other, plus menu of supported user actions. '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -944,8 +948,8 @@ def pageOne(config_file):
         sys.exit(1)
 
 
-''' Display menu of supported user actions for "page one" '''
 def menuPageOne(config_file):
+    ''' Display menu of supported user actions for "page one". First menu user sees, below the results of comparing WAS cell to config file. '''
     display = "\n\n"
     display += div1 + "\n"
     display += "Options \n"
@@ -991,16 +995,16 @@ def menuPageOne(config_file):
         print "Menu response was: " + str(menu_response)
         if (menu_response.isnumeric()):
             if (menu_response == '1'):
-                baseServerName = whatServerMenu()
+                baseServerName = whatServerMenu(config_file)
                 if (baseServerName != None):
-                    pageServerDetail(baseServerName)
+                    pageServerDetail(config_file, baseServerName)
                 else:
                     print "No server selected."
                     menuPageOne(config_file)
             elif (menu_response == '2'):
                 menuAddOrReplace(config_file)
             elif (menu_response == '3'):
-                menuForCellThings()
+                menuForCellThings(config_file)
             elif (menu_response == '99'):
                 menuToSwitchConfigFiles(config_file)
             else:
@@ -1012,14 +1016,14 @@ def menuPageOne(config_file):
             sys.exit(0)
 
 
-''' Server Detail Page. Like "page one" but with more detail on a particular server, e.g., jvm custom props, resources, etc.'''
-def pageServerDetail(baseServerName):
+def pageServerDetail(config_file, baseServerName):
+    ''' Server Detail Page. Like "page one" but with more detail on a particular server, e.g., jvm custom props, resources, etc.'''
     try:
         getServerWASinfoDetail(baseServerName)    
         getServerConfigInfoDetail(baseServerName)
         displayWASServerDetail(config_file, baseServerName)
         displayServerConfigInfoDetail(config_file, baseServerName)
-        menuServerDetail(baseServerName)
+        menuServerDetail(config_file, baseServerName)
     except SystemExit:
         pass
     except:
@@ -1028,8 +1032,8 @@ def pageServerDetail(baseServerName):
         sys.exit(1)
 
         
-''' Menu of supported user actions for Server Detail Page '''
 def menuServerDetail(config_file, baseServerName):
+    ''' Menu of supported user actions for Server Detail Page '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -1071,7 +1075,7 @@ def menuServerDetail(config_file, baseServerName):
             menu_response = raw_input("\nReturn to main display? (y | n): ")
             if menu_response.lower() == "n":
                 print "Response was: " + str(menu_response)
-                menuServerDetail(baseServerName)
+                menuServerDetail(config_file, baseServerName)
             else:
                 if (menu_response == ""):
                     print "Menu response was: empty string"
@@ -1088,12 +1092,12 @@ def menuServerDetail(config_file, baseServerName):
                 elif (menu_response.lower() == '2'):
                     menuAddOrReplace(config_file)
                 elif (menu_response == '98'):
-                    pageServerDetail(baseServerName)
+                    pageServerDetail(config_file, baseServerName)
                 elif (menu_response == '99'):
                     menuToSwitchConfigFiles(config_file)
                 else:
                     print "Response was not recognized."
-                    menuServerDetail(baseServerName)
+                    menuServerDetail(config_file, baseServerName)
             else:
                 print "Response was non-numeric."
                 print "Returning to main display."
@@ -1107,8 +1111,8 @@ def menuServerDetail(config_file, baseServerName):
         sys.exit(1)
 
 
-''' Main Menu. User gets this when they choose "See supported actions for this config file" '''
 def menuAddOrReplace(config_file):
+    ''' Main Menu. User gets this when they choose "See supported actions for this config file" (option 2 on page one) '''
     global hasCyberarkConfig
     global hasCyberarkOptions
     global cyberarkCredInfoDict
@@ -1142,26 +1146,38 @@ def menuAddOrReplace(config_file):
         display += sp3 + "i.e., NOT replace any items that already exist in cell \n"
         display += sp3 + "Only adds items from the config file that are missing in the WAS cell. \n"
         display += "\n"
+
         menuNum = 2
         display += sp1+ str(menuNum) + sp1+ "Replace items in your WAS cell from contents of config file ...\n"
         display += "\n"
+
         menuNum = 3
         display += sp1+ str(menuNum) + sp1+ "Modify items in your WAS cell from contents of config file ...\n"
         display += "\n"
+
+        menuNum = 4
+        display += sp1+ str(menuNum) + sp1+ "Delete items in your WAS cell from contents of config file ...\n"
+        display += "\n"
+
+
         if hasCyberarkConfig == "true":
-            menuNum = 4
+            menuNum = 5
             display += sp1+ str(menuNum) + sp1+ "Cyberark it! for the specified datasources in this config file (including options if any)...\n"
             display += "\n"
-            menuNum = 5
+
+            menuNum = 6
             display += sp1+ str(menuNum) + sp1+ "Enable the cyberarked datasources in this config file and disable the original ones ...\n"
             display += "\n"
-            menuNum = 6
+
+            menuNum = 7
             display += sp1+ str(menuNum) + sp1+ "Disable the cyberarked datasources and re-enable the original, non-cyberarked ones in this config file ...\n"
             display += "\n"
-            menuNum = 7
+
+            menuNum = 8
             display += sp1+ str(menuNum) + sp1+ "Add or modify options for existing cyberark creds and jvms in this config file ...\n"
             display += "\n"
-            menuNum = 8
+
+            menuNum = 9
             display += sp1+ str(menuNum) + sp1+ "Reset Cyberark options for existing creds and jvms in this config file using vals from defaults file...\n"
             display += "\n"
 
@@ -1202,13 +1218,20 @@ def menuAddOrReplace(config_file):
         else:
             print "Menu response was: " + str(menu_response)
             if (menu_response.isnumeric()):
+
                 if (menu_response == '1'):
                     menuToAddThings(config_file)
+
                 elif (menu_response == '2'):
                     menuToReplaceThings(config_file)
+
                 elif (menu_response == '3'):
                     menuToModifyThings(config_file)
+
                 elif (menu_response == '4'):
+                    menuToDeleteThings(config_file)
+
+                elif (menu_response == '5'):
                     appNickname = ""
                     reasonStringToBind = ""
                     localCacheLifeSpanStringToBind = ""
@@ -1263,15 +1286,18 @@ def menuAddOrReplace(config_file):
                     for baseServerName in baseServerList:   
                         Configurator.setCyberArkOptions(WAScellName, appNickname, baseServerName, reasonStringToBind, localCacheLifeSpanStringToBind, usingCMSubjectCache)
                     readyAddOrReplaceMenu(menu_response)
-                elif (menu_response == '5'):
+
+                elif (menu_response == '6'):
                     enableCyberarkOrOriginal = "cyberark"
                     Configurator.toggleCyberarkedDatasources(cfgDict, enableCyberarkOrOriginal)
                     readyAddOrReplaceMenu(menu_response)
-                elif (menu_response == '6'):                    
+
+                elif (menu_response == '7'):
                     enableCyberarkOrOriginal = "original"
                     Configurator.toggleCyberarkedDatasources(cfgDict, enableCyberarkOrOriginal)
                     readyAddOrReplaceMenu(menu_response)
-                elif (menu_response == '7'):                    
+
+                elif (menu_response == '8'):
                     appNickname = ""
                     reasonStringToBind = ""
                     localCacheLifeSpanStringToBind = ""
@@ -1323,7 +1349,7 @@ def menuAddOrReplace(config_file):
                         Configurator.setCyberArkOptions(WAScellName, appNickname, baseServerName, reasonStringToBind, localCacheLifeSpanStringToBind, usingCMSubjectCache)
                     readyAddOrReplaceMenu(menu_response)
 
-                elif (menu_response == '8'):                    
+                elif (menu_response == '9'):
                     appNickname = ""
                     reasonStringToBind = ""
                     localCacheLifeSpanStringToBind = ""
@@ -1342,8 +1368,10 @@ def menuAddOrReplace(config_file):
                     
                 elif (menu_response == '98'):
                     reDisplaypageOne(config_file)
+
                 elif (menu_response == '99'):
                     menuToSwitchconfig_files()
+
                 else:
                     print "Response was not recognized."
                     menuAddOrReplace(config_file)
@@ -1359,8 +1387,8 @@ def menuAddOrReplace(config_file):
         sys.exit(1)
 
 
-''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: Main Menu '''
 def readyAddOrReplaceMenu(menu_response):
+    ''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: Main Menu '''
     print "\nEnd of Add Menu Option " + menu_response  
     try:
         what_response = raw_input("\nPress any key to continue.  ")
@@ -1371,8 +1399,8 @@ def readyAddOrReplaceMenu(menu_response):
     menuAddOrReplace(config_file)
 
 
-''' The "Add" Menu. '''
 def menuToAddThings(config_file):
+    ''' The "Add" Menu. '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -1503,6 +1531,7 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '2'):
                 try:
                     print "\nAdd a server ..."
@@ -1516,7 +1545,7 @@ def menuToAddThings(config_file):
                         print
                         print "    2  Rerun this script and use the individual 'modify' actions to add datasources, etc."
                     else:    
-                        baseServerName = whatServerMenu()
+                        baseServerName = whatServerMenu(config_file)
                         if (baseServerName != None):
                             print "\nAdding server: " + baseServerName + " ..."
                             Configurator.doServer(cfgDict, baseServerName)
@@ -1528,10 +1557,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '3'):
                 try:
                     print "\nAdd virtual host for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):
                         print "\nAdding virtual host for: " + baseServerName + " ..."
                         Configurator.createOneVirtualHost(cfgDict, baseServerName)
@@ -1543,10 +1573,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '4'):
                 try:
                     print "\nAdd datasources for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\nAdding datasources for: " + baseServerName + " ..."
                         Configurator.createOneServersDatasources(cfgDict, baseServerName)
@@ -1559,6 +1590,7 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '41'):
                 try:
                     print "\nAdd datasources at arbitrary server scope ..."
@@ -1577,10 +1609,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '5'):
                 try:
                     print "\nAdd JVM custom prop(s) for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):
                         print "\nAdding JVM custom prop(s) for: " + baseServerName + " ..."
                         Configurator.createJvmCustomProps(cfgDict, baseServerName)
@@ -1592,10 +1625,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '6'):
                 try:
                     print "\nAdd web container custom prop(s) for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                                        
                         print "\nAdding web container custom prop(s) for: " + baseServerName + " ..."
                         Configurator.setWebContainerCustomProperties(cfgDict, baseServerName)
@@ -1607,10 +1641,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '7'):
                 try:
                     print "\nAdd queue connection factorie(s) for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                                        
                         print "\nAdding queue connection factorie(s) for: " + baseServerName + " ..."
                         Configurator.createOneServersQueueConnectionFactories(cfgDict, baseServerName)
@@ -1622,10 +1657,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '8'):
                 try:
                     print "\nAdd queue(s) for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\nAdding queue(s) for: " + baseServerName + " ..."
                         Configurator.createOneServersQueue(cfgDict, baseServerName)
@@ -1637,10 +1673,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '9'):
                 try:
                     print "\nAdd Act spec(s) for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\nAdding Act spec(s) for: " + baseServerName + " ..."
                         Configurator.createOneServersJMSActivationSpecs(cfgDict, baseServerName)
@@ -1652,10 +1689,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '10'):
                 try:
                     print "\nAdd shared lib(s) for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\nAdding shared lib(s) for: " + baseServerName + " ..."
                         Configurator.createSharedLibraries(cfgDict, baseServerName)
@@ -1667,6 +1705,7 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '11'):
                 try:
                     print "\nAdding cell-level WAS vars ..."
@@ -1676,6 +1715,7 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '12'):
                 try:
                     print "\nAdding node-level WAS vars ..."
@@ -1685,6 +1725,7 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '13'):
                 try:
                     print "\nAdding JAAS entries ..."
@@ -1694,10 +1735,11 @@ def menuToAddThings(config_file):
                     print "\n\nException in menuToAddThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '14'):
                 try:
                     print "\nAdd NEW asynch bean work manager definitions for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\nAdding NEW asynch bean work manager definitions for: " + baseServerName + " ... \n"
                     Configurator.createAsynchBeanNonDefaultWorkManagers(cfgDict, baseServerName)
@@ -1727,8 +1769,8 @@ def menuToAddThings(config_file):
         sys.exit(1)
 
 
-''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Add Menu '''
 def readyAddMenu(config_file, menu_response):
+    ''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Add Menu '''
     print "\nEnd of Add Menu Option " + menu_response  
     try:
         what_response = raw_input("\nPress any key to continue.  ")
@@ -1739,8 +1781,8 @@ def readyAddMenu(config_file, menu_response):
     menuToAddThings(config_file)
 
 
-''' Lets user choose a server listed in their config file. '''
 def whatServerMenu(config_file) :
+    ''' Let user choose a server listed in their config file. '''
     count = 1
     foundInWAS = "false"
     display = ""
@@ -1823,8 +1865,8 @@ def whatServerMenu(config_file) :
         return theChosenBaseServerName
 
 
-''' The "Replace" Menu '''
 def menuToReplaceThings(config_file):
+    ''' The "Replace" Menu '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -1849,7 +1891,7 @@ def menuToReplaceThings(config_file):
         if (wsadminServer == "server1"):
             display += sp3 + "\n"
             display += sp3 + "You are connected to a standalone server -- i.e., server name is server1.\n"
-            display += sp3 + "Script cannot rebuild standalone server.\n"
+            display += sp3 + "Script will not rebuild standalone server.\n"
             display += sp3 + "Other items (if any) in your config will be rebuilt. \n"
         display += "\n"
         
@@ -1961,6 +2003,7 @@ def menuToReplaceThings(config_file):
             return
             
         if (menu_response.isnumeric()):
+
             if (menu_response == '1'):
                 try:
                     print "\nReplace all items in your WAS cell that are in this config file."
@@ -2007,7 +2050,7 @@ def menuToReplaceThings(config_file):
                         print
                         print "    2  Rerun this script and use the individual 'modify' actions to add datasources, etc."
                     else: 
-                        baseServerName = whatServerMenu()
+                        baseServerName = whatServerMenu(config_file)
                         if (baseServerName != None):                    
                             print "\n" + div1 
                             print "Removing cluster and/or server for: " + baseServerName + " ..."
@@ -2029,10 +2072,11 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '3'):
                 try:
                     print "\nRebuild virtual host for a server or cluster ...\n"
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\n" + div1 
                         print "Removing virtual host for: " + baseServerName + " ..."
@@ -2050,10 +2094,11 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     sys.exit(1)
+
             elif (menu_response == '4'):
                 try:
                     print "\nRebuild datasource(s) for a server or cluster ...\n"
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\n" + div1 
                         print "Removing a atasource(s) for: " + baseServerName + " ..."
@@ -2106,7 +2151,7 @@ def menuToReplaceThings(config_file):
             elif (menu_response == '5'):
                 try:
                     print "\nRebuild JVM custom property(ies) for a server or cluster ...\n"
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\n" + div1 
                         print "Removing JVM custom props for server: " + baseServerName + " ..."
@@ -2149,6 +2194,7 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '6'):
                 try:
                     print "\nRebuild web container custom property(ies) for a server or cluster ...\n"
@@ -2158,10 +2204,11 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '7'):
                 try:
                     print "\nRebuild MQ queue connection factory(ies) for a server or cluster ...\n"
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\n" + div1
                         print "Removing MQ queue connection factory(ies) for server: " + baseServerName + " ..."
@@ -2209,10 +2256,11 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '8'):
                 try:
                     print "\nRebuild MQ queue definition(s) for a server or cluster ...\n"
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         print "\n" + div1 
                         print "Removing queue(s) for server: " + baseServerName + " ..."
@@ -2239,6 +2287,7 @@ def menuToReplaceThings(config_file):
                                                     serverName = baseServerName + str(nodeNumber)
                                                     print "\nRemoving queue: " + queueName + " for server: " + serverName
                                                     Destroyer.blowAwayOneServersQueue(cellName, nodeName, serverName, queueName)
+
                         except:
                             print "\n\nException in menuToReplaceThings() when removing queue(s)"
                             sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
@@ -2260,6 +2309,7 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '9'):
                 try:
                     print "\nRebuild JMS Activation Spec(s) for a server or cluster ...\n"
@@ -2269,6 +2319,7 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '10'):
                 try:
                     print "\nRebuild shared library(ies) (& classloader(s)) for a server or cluster ...\n"
@@ -2278,6 +2329,7 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '11'):
                 try:
                     print "\nRebuild cell-scoped WebSphere variable(s) ...\n"
@@ -2294,6 +2346,7 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '12'):
                 try:
                     print "\nRebuild node-scoped WebSphere variable(s) ...\n"
@@ -2310,6 +2363,7 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '13'):
                 try:
                     print "\nRebuild cell-scoped JAAS authentication entry(ies) ...\n"
@@ -2326,10 +2380,11 @@ def menuToReplaceThings(config_file):
                     print "\n\nException in menuToReplaceThings() on menu response: " + menu_response + "\n\n"
                     sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                     readyReplaceMenu(config_file, menu_response)
+
             elif (menu_response == '14'):
                 try:
                     print "\nRebuild asynch bean work manager definitions for a server or cluster ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):                    
                         try:
                             serversWorkManagerInfoDict = wini.getPrefixedClauses(cfgDict,'asynchBeanWorkManager:' + baseServerName + ':')
@@ -2369,8 +2424,8 @@ def menuToReplaceThings(config_file):
                             print "\n\nException in menuToReplaceThings() when removing work manager(s)"
                             sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
                             readyReplaceMenu(config_file, menu_response)
-                        try:                                    
-                                                            
+
+                        try:
                             print "\n" + div1 
                             print "Recreating all NON-DEFAULT work manager(s) for: " + baseServerName + " ..."
                             print div1 + "\n"
@@ -2411,8 +2466,8 @@ def menuToReplaceThings(config_file):
         sys.exit(1)
 
 
-''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Replace Menu '''
 def readyReplaceMenu(config_file, menu_response):
+    ''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Replace Menu '''
     print "\nEnd of Replace Menu Option " + menu_response
     try:
         what_response = raw_input("\nPress any key to continue.  ")                    
@@ -2423,8 +2478,535 @@ def readyReplaceMenu(config_file, menu_response):
     reDisplaypageOne(config_file)
         
 
-''' The "Modify" Menu. Doesn't support too much because generally we just delete and replace something to change it. '''
+def menuToDeleteThings(config_file):
+    ''' The "Delete" Menu '''
+    try:
+        display = "\n\n"
+        display += div1 + "\n"
+        display += "Options for DELETING items to your WAS cell \n\n"
+        display += "These options will BLOW AWAY existing items in your WAS cell\n"
+        display += sp3 + "... but ONLY items that are in this config file. \n"
+
+        display += div1 + "\n\n"
+        display += sp1 + "Config file: " + config_file + "\n"
+        print display
+
+        display = "\n\n"
+        display += div1 + "\n"
+        display += "Please choose action to perform \n"
+        display += div1 + "\n"
+
+        # get name of server we are connected to
+        wsadminSvr = AdminControl.queryNames("node="+AdminControl.getNode( )+",type=Server,*" )
+        wsadminServer = AdminControl.getAttribute(wsadminSvr, "name" )
+
+        menuNum = 1
+        display += sp1+ str(menuNum) + sp1+ "Delete all items in config file \n"
+        if (wsadminServer == "server1"):
+            display += sp3 + "\n"
+            display += sp3 + "You are connected to a standalone server -- i.e., server name is server1.\n"
+            display += sp3 + "Script will not delete standalone server.\n"
+            display += sp3 + "Other items (if any) in your config will be deleted. \n"
+        display += "\n"
+
+        if (wsadminServer == "dmgr"):
+
+            menuNum = 2
+            display += sp1+ str(menuNum) + sp1+ "Delete a server ...\n"
+            display += "\n"
+
+            menuNum = 3
+            display += sp1+ str(menuNum) + sp1+ "Delete virtual host for a server or cluster ...\n"
+            display += "\n"
+
+        menuNum = 4
+        display += sp1+ str(menuNum) + sp1+ "Delete datasource(s) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 5
+        display += sp1+ str(menuNum) + sp1+ "Delete JVM custom property(ies) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 6
+        display += sp1+ str(menuNum) + sp1+ "Delete web container custom property(ies) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 7
+        display += sp1+ str(menuNum) + sp1+ "Delete MQ queue connection factory(ies) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 8
+        display += sp1+ str(menuNum) + sp1+ "Delete MQ queue definition(s) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 9
+        display += sp1+ str(menuNum) + sp1+ "Delete JMS Activation Spec(s) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 10
+        display += sp1+ str(menuNum) + sp1+ "Delete shared library(ies) (& classloader(s)) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 11
+        display += sp1+ str(menuNum) + sp1+ "Delete cell-scoped WebSphere variable(s) ...\n"
+        display += "\n"
+
+        menuNum = 12
+        display += sp1+ str(menuNum) + sp1+ "Delete node-scoped WebSphere variable(s) ...\n"
+        display += "\n"
+
+        menuNum = 13
+        display += sp1+ str(menuNum) + sp1+ "Delete cell-scoped JAAS authentication entry(ies) ...\n"
+        display += "\n"
+
+        menuNum = 14
+        display += sp1+ str(menuNum) + sp1+ "Delete asynch bean work manager(s) for a server or cluster ...\n"
+        display += "\n"
+
+        menuNum = 99
+        display += sp1+ str(menuNum) + sp1+ "Return to previous menu ...\n"
+        display += "\n"
+
+        print display
+        menu_response = ""
+
+        try:
+            menu_response = raw_input(standard_prompt)
+        except EOFError:
+            print "\nExiting."
+            sys.exit(0)
+        if (menu_response == ""):
+            print "Menu response was: empty string"
+            menu_response = raw_input("\nReturn to previous menu? (y | n): ")
+            if menu_response.lower() == "n":
+                print "Response was: " + str(menu_response)
+                menuToDeleteThings(config_file)
+                return
+            else:
+                if (menu_response == ""):
+                    print "Response was: empty string"
+                else:
+                    print "Response was: " + str(menu_response)
+                print "\nReturning to previous menu."
+                menuAddOrReplace(config_file)
+                return
+
+        danger_response = ""
+        warning_msg = ""
+        try:
+            warning_msg += "\nThis option will BLOW AWAY existing items in your WAS cell\n"
+            warning_msg += "... but ONLY items that are in this config file. \n"
+            warning_msg += "\nEnter 'y' to continue, any other key to abort. "
+            danger_response = raw_input(warning_msg)
+        except EOFError:
+            print "\nExiting."
+            sys.exit(0)
+        print "Warning response was: " + str(danger_response)
+        if (danger_response == ""):
+            print "Response was: empty string"
+            menuToDeleteThings(config_file)
+            return
+        elif (danger_response.lower() == 'y'):
+            print "Response was: " + str(danger_response)
+            pass
+        else:
+            print "Response was: " + str(danger_response)
+            menuToDeleteThings(config_file)
+            return
+
+        if (menu_response.isnumeric()):
+
+            if (menu_response == '1'):
+                try:
+                    print "\nDelete all items in your WAS cell that are in this config file."
+                    print "\n" + div1
+                    print "Removing all items that are in this config file ..."
+                    print div1 + "\n"
+                    if (wsadminServer == "server1"):
+                        print "You are connected to a standalone server -- i.e., server name is server1."
+                        print "Script will not remove standalone server."
+                        print "Continuing."
+                    else:
+                        Destroyer.blowAwayAllClustersServers(cfgDict)
+                        Destroyer.blowAwayAllVirtualHosts(cfgDict)
+                    Destroyer.blowAwayAllJaas(cfgDict)
+                    Destroyer.blowAwayAllCellScopedWebsphereVariable(cellName, cfgDict)
+                    Destroyer.zeroOutAllNodeScopedWebsphereVariable(cfgDict)
+                    Destroyer.blowAwayAllRepDomains(cfgDict)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    sys.exit(1)
+
+            elif (menu_response == '2'):
+                try:
+                    print "\Delete a server ...\n"
+                    if (wsadminServer == "server1"):
+                        print "You are connected to a standalone server -- i.e., server name is server1."
+                        print "\nScript will not delete standalone server."
+                    else:
+                        baseServerName = whatServerMenu(config_file)
+                        if (baseServerName != None):
+                            print "\n" + div1
+                            print "Removing cluster and/or server for: " + baseServerName + " ..."
+                            print div1 + "\n"
+                            getServerClusterConfigInfoDetail(baseServerName)
+                            if (serverIsClusteredInConfigFile == "true"):
+                                Destroyer.blowAwayCluster(clusterNameInConfigFile)
+                            elif (serverIsClusteredInConfigFile == "false"):
+                                Destroyer.blowAwayServer(nodeNameInConfigFile, baseServerName + '1')
+                        else:
+                            print "\nNo server chosen."
+                            menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    sys.exit(1)
+
+            elif (menu_response == '3'):
+                try:
+                    print "\nDelete virtual host for a server or cluster ...\n"
+                    baseServerName = whatServerMenu(config_file)
+                    if (baseServerName != None):
+                        print "\n" + div1
+                        print "Removing virtual host for: " + baseServerName + " ..."
+                    else:
+                        print "\nNo server chosen."
+                        menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    sys.exit(1)
+
+            elif (menu_response == '4'):
+                try:
+                    print "\nDelete datasource(s) for a server or cluster ...\n"
+                    baseServerName = whatServerMenu(config_file)
+                    if (baseServerName != None):
+                        print "\n" + div1
+                        print "Removing a atasource(s) for: " + baseServerName + " ..."
+                        print div1 + "\n"
+                        try:
+                            serversdataSourceInfoDict = wini.getPrefixedClauses(cfgDict,'dataSource:' + baseServerName + ':')
+                            if serversdataSourceInfoDict:
+                                for serversdataSourceInfoKey in serversdataSourceInfoDict.keys():
+                                    sdi = serversdataSourceInfoDict[serversdataSourceInfoKey]
+                                    dataSourceName = sdi['dataSourceName'].strip()
+                                    dbType = sdi['db2OrOracle'].strip()
+                                    for serverInfoKey in serverInfoDict.keys():
+                                        si = serverInfoDict[serverInfoKey]
+                                        if (si['baseServerName'] == baseServerName):
+                                            isClustered = si['isClustered'].strip()
+                                            if (isClustered == 'true'):
+                                                clusterName = si['clusterName']
+                                                Destroyer.blowAwayOneClustersDatasource(clusterName, dbType, dataSourceName)
+                                            else:
+                                                nodeList = si['nodeList'].split()
+                                                nodeNumber = 0
+                                                for nodeName in nodeList:
+                                                    nodeNumber += 1
+                                                    #slap a number on the end of baseServerName whether it is clustered (on > 1 node) or not (1 node)
+                                                    serverName = baseServerName + str(nodeNumber)
+                                                    print "\nRemoving datasource: " + dataSourceName + " for server: " + serverName
+                                                    Destroyer.blowAwayOneServersDatasource(cellName, nodeName, serverName, dbType, dataSourceName)
+                        except:
+                            print "\n\nException in menuToDeleteThings() when removing datasources()"
+                            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                            readyDeleteMenu(config_file, menu_response)
+                    else:
+                        print "\nNo server chosen."
+                        menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+
+            elif (menu_response == '5'):
+                try:
+                    print "\nDelete JVM custom property(ies) for a server or cluster ...\n"
+                    baseServerName = whatServerMenu(config_file)
+                    if (baseServerName != None):
+                        print "\n" + div1
+                        print "Removing JVM custom props for server: " + baseServerName + " ..."
+                        print div1 + "\n"
+                        try:
+                            jvmCustomPropInfoDict = wini.getPrefixedClauses(cfgDict,'jvmCustomProperty:' + baseServerName + ':')
+                            if jvmCustomPropInfoDict:
+                                for jvmCustomPropInfoKey in jvmCustomPropInfoDict.keys():
+                                    jcpi = jvmCustomPropInfoDict[jvmCustomPropInfoKey]
+                                    jvmCustomPropName = jcpi['propertyName'].strip()
+                                    for serverInfoKey in serverInfoDict.keys():
+                                        si = serverInfoDict[serverInfoKey]
+                                        if (si['baseServerName'] == baseServerName):
+                                            nodeList = si['nodeList'].split()
+                                            nodeNumber = 0
+                                            for nodeName in nodeList:
+                                                nodeNumber += 1
+                                                #slap a number on the end of baseServerName whether it is clustered (on > 1 node) or not (1 node)
+                                                serverName = baseServerName + str(nodeNumber)
+                                                print "\nRemoving JVM custom prop: " + jvmCustomPropName + " for server: " + serverName
+                                                Destroyer.blowAwayOneServersJvmCustomProperty(nodeName, serverName, jvmCustomPropName)
+                        except:
+                            print "\n\nException in menuToDeleteThings() when removing JVM custom prop(s)"
+                            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                            readyDeleteMenu(config_file, menu_response)
+                    else:
+                        print "\nNo server chosen."
+                        menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '6'):
+                try:
+                    print "\nDelete web container custom property(ies) for a server or cluster ...\n"
+                    print "This feature is not implemented. Only option at the moment is to recreate the server."
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '7'):
+                try:
+                    print "\nDelete MQ queue connection factory(ies) for a server or cluster ...\n"
+                    baseServerName = whatServerMenu(config_file)
+                    if (baseServerName != None):
+                        print "\n" + div1
+                        print "Removing MQ queue connection factory(ies) for server: " + baseServerName + " ..."
+                        print div1 + "\n"
+                        try:
+                            queueConnectionFactoryInfoDict = wini.getPrefixedClauses(cfgDict,'queueConnectionFactory:' + baseServerName + ':')
+                            if queueConnectionFactoryInfoDict:
+                                for queueConnectionFactoryInfoKey in queueConnectionFactoryInfoDict.keys():
+                                    qcfi = queueConnectionFactoryInfoDict[queueConnectionFactoryInfoKey]
+                                    factoryName = qcfi['name'].strip()
+                                    for serverInfoKey in serverInfoDict.keys():
+                                        si = serverInfoDict[serverInfoKey]
+                                        if (si['baseServerName'] == baseServerName):
+                                            isClustered = si['isClustered'].strip()
+                                            if (isClustered == 'true'):
+                                                clusterName = si['clusterName']
+                                                Destroyer.blowAwayOneClustersQueueConnectionFactory(cellName, clusterName, factoryName)
+                                            else:
+                                                nodeList = si['nodeList'].split()
+                                                nodeNumber = 0
+                                                for nodeName in nodeList:
+                                                    nodeNumber += 1
+                                                    #slap a number on the end of baseServerName whether it is clustered (on > 1 node) or not (1 node)
+                                                    serverName = baseServerName + str(nodeNumber)
+                                                    print "\nRemoving MQ queue connection factory: " + factoryName + " for server: " + serverName
+                                                    Destroyer.blowAwayOneServersQueueConnectionFactory(cellName, nodeName, serverName, factoryName)
+                        except:
+                            print "\n\nException in menuToDeleteThings() when removing MQ queue connection factory(ies)"
+                            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                            readyDeleteMenu(config_file, menu_response)
+                    else:
+                        print "\nNo server chosen."
+                        menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '8'):
+                try:
+                    print "\nDelete MQ queue definition(s) for a server or cluster ...\n"
+                    baseServerName = whatServerMenu(config_file)
+                    if (baseServerName != None):
+                        print "\n" + div1
+                        print "Removing queue(s) for server: " + baseServerName + " ..."
+                        print div1 + "\n"
+                        try:
+                            queueInfoDict = wini.getPrefixedClauses(cfgDict,'queue:' + baseServerName + ':')
+                            if queueInfoDict:
+                                for queueInfoKey in queueInfoDict.keys():
+                                    qi = queueInfoDict[queueInfoKey]
+                                    queueName = qi['name'].strip()
+                                    for serverInfoKey in serverInfoDict.keys():
+                                        si = serverInfoDict[serverInfoKey]
+                                        if (si['baseServerName'] == baseServerName):
+                                            isClustered = si['isClustered'].strip()
+                                            if (isClustered == 'true'):
+                                                clusterName = si['clusterName']
+                                                Destroyer.blowAwayOneClustersQueue(cellName, clusterName, queueName)
+                                            else:
+                                                nodeList = si['nodeList'].split()
+                                                nodeNumber = 0
+                                                for nodeName in nodeList:
+                                                    nodeNumber += 1
+                                                    #slap a number on the end of baseServerName whether it is clustered (on > 1 node) or not (1 node)
+                                                    serverName = baseServerName + str(nodeNumber)
+                                                    print "\nRemoving queue: " + queueName + " for server: " + serverName
+                                                    Destroyer.blowAwayOneServersQueue(cellName, nodeName, serverName, queueName)
+
+                        except:
+                            print "\n\nException in menuToDeleteThings() when removing queue(s)"
+                            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                            readyDeleteMenu(config_file, menu_response)
+                    else:
+                        print "\nNo server chosen."
+                        menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '9'):
+                try:
+                    print "\nDelete JMS Activation Spec(s) for a server or cluster ...\n"
+                    print "This feature is not implemented. Only option at the moment is to recreate the server."
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '10'):
+                try:
+                    print "\nDelete shared library(ies) (& classloader(s)) for a server or cluster ...\n"
+                    print "This feature is not implemented. Only option at the moment is to recreate the server."
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '11'):
+                try:
+                    print "\nDelete cell-scoped WebSphere variable(s) ...\n"
+                    print "\n" + div1
+                    print "Removing WAS vars ..."
+                    print div1 + "\n"
+                    Destroyer.blowAwayAllCellScopedWebsphereVariable(cellName, cfgDict)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '12'):
+                try:
+                    print "\nDelete node-scoped WebSphere variable(s) ...\n"
+                    print "\n" + div1
+                    print "Removing node-scoped WAS vars ..."
+                    print div1 + "\n"
+                    Destroyer.zeroOutAllNodeScopedWebsphereVariable(cfgDict)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '13'):
+                try:
+                    print "\nDelete cell-scoped JAAS authentication entry(ies) ...\n"
+                    print "\n" + div1
+                    print "Removing JAAS entry(ies) ..."
+                    print div1 + "\n"
+                    Destroyer.blowAwayAllJaas(cfgDict)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '14'):
+                try:
+                    print "\nDelete asynch bean work manager definitions for a server or cluster ..."
+                    baseServerName = whatServerMenu(config_file)
+                    if (baseServerName != None):
+                        try:
+                            serversWorkManagerInfoDict = wini.getPrefixedClauses(cfgDict,'asynchBeanWorkManager:' + baseServerName + ':')
+                            if serversWorkManagerInfoDict:
+                                print "\n" + div1
+                                print "Removing all NON-DEFAULT asynch bean work manager definition(s) for: " + baseServerName + " ..."
+                                print div1 + "\n"
+
+                                for serversWorkManagerInfoKey in serversWorkManagerInfoDict.keys():
+                                    swm = serversWorkManagerInfoDict[serversWorkManagerInfoKey]
+                                    jndiName = swm['jndiName'].strip()
+                                    workManagerName = swm['name'].strip()
+                                    if (jndiName == 'wm/default'):
+                                        print "\n\n Warning:"
+                                        print "     Cannot remove the default work manager (jndi name: " + jndiName + "). Only option at the moment is to rebuild the server, then modify work manager(s).\n"
+                                        readyDeleteMenu(config_file, menu_response)
+                                    else:
+                                        for serverInfoKey in serverInfoDict.keys():
+                                            si = serverInfoDict[serverInfoKey]
+                                            if (si['baseServerName'] == baseServerName):
+                                                isClustered = si['isClustered'].strip()
+                                                if (isClustered == 'true'):
+                                                    clusterName = si['clusterName']
+                                                    print "\nRemoving work manager: " + workManagerName + " for cluster: " + clusterName
+                                                    Destroyer.blowAwayOneClustersAsynchBeanWorkManager(clusterName, workManagerName)
+                                                else:
+                                                    nodeList = si['nodeList'].split()
+                                                    nodeNumber = 0
+                                                    for nodeName in nodeList:
+                                                        nodeNumber += 1
+                                                        #slap a number on the end of baseServerName whether it is clustered (on > 1 node) or not (1 node)
+                                                        serverName = baseServerName + str(nodeNumber)
+                                                        print "\nRemoving work manager: " + workManagerName + " for server: " + serverName
+                                                        Destroyer.blowAwayOneServersAsynchBeanWorkManager(nodeName, serverName, workManagerName)
+                        except:
+                            print "\n\nException in menuToDeleteThings() when removing work manager(s)"
+                            sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                            readyDeleteMenu(config_file, menu_response)
+                    else:
+                        print "\nNo server chosen."
+                        menuToDeleteThings(config_file)
+                    readyDeleteMenu(config_file, menu_response)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    readyDeleteMenu(config_file, menu_response)
+
+            elif (menu_response == '99'):
+                try:
+                    menuAddOrReplace(config_file)
+                except:
+                    print "\n\nException in menuToDeleteThings() on menu response: " + menu_response + "\n\n"
+                    sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+                    menuAddOrReplace(config_file)
+            else:
+                print "Response was not recognized."
+                menuToDeleteThings(config_file)
+        else:
+            print "Response was non-numeric."
+            print "Returning to previous menu."
+            menuAddOrReplace(config_file)
+    except SystemExit:
+        pass
+    except:
+        print "\n\nException in menuToDeleteThings()\n\n"
+        sys.excepthook(sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2])
+        sys.exit(1)
+
+
+def readyDeleteMenu(config_file, menu_response):
+    ''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Delete Menu '''
+    print "\nEnd of Delete Menu Option " + menu_response
+    try:
+        what_response = raw_input("\nPress any key to continue.  ")
+    except EOFError:
+        print "\nExiting."
+        sys.exit(0)
+    # go back to page one instead of re-displaying Delete menu,
+    #  to help avoid tragic mistakes, and to avoid having the "are you sure"
+    #  confirmation triggered inappropriately, e.g., for "return to previous"
+    reDisplaypageOne(config_file)
+
+
 def menuToModifyThings(config_file):
+    ''' The "Modify" Menu. Doesn't support too much because generally we just delete and replace something to change it. '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -2470,7 +3052,7 @@ def menuToModifyThings(config_file):
             if (menu_response == '7'):
                 try:
                     print "\nModify a server or cluster's EXISTING queue connection factory connection and/or session pools ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):
                         print "\nModifying one EXISTING queue connection factory for: " + baseServerName + " ."
                         print "(currently only pool settings can be modified)"
@@ -2496,7 +3078,7 @@ def menuToModifyThings(config_file):
             if (menu_response == '14'):
                 try:
                     print "\nModify a server or cluster's EXISTING asynch bean work manager(s) ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):
                         print "\nModifying EXISTING asynch bean work manager(s) for: " + baseServerName + " ."
                         Configurator.modifyAsynchBeanDefaultWorkManager(cfgDict, baseServerName)
@@ -2512,7 +3094,7 @@ def menuToModifyThings(config_file):
             if (menu_response == '20'):
                 try:
                     print "\nModify HTTP queue tuning params for a server ..."
-                    baseServerName = whatServerMenu()
+                    baseServerName = whatServerMenu(config_file)
                     if (baseServerName != None):
                         print "\nModifying HTTP queue tuning params for: " + baseServerName + " ."
                         Configurator.modifyHttpQueueTuningParams(cfgDict, baseServerName, "WC_defaulthost")
@@ -2549,8 +3131,8 @@ def menuToModifyThings(config_file):
         sys.exit(1)
 
 
-''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Modify Menu '''
 def readyModifyMenu(menu_response):
+    ''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Modify Menu '''
     print "\nEnd of Modify Menu Option " + menu_response  
     try:
         what_response = raw_input("\nPress any key to continue.  ")                    
@@ -2561,8 +3143,8 @@ def readyModifyMenu(menu_response):
     menuToModifyThings(config_file)
 
         
-''' Let user select a different config file without having to start a new script session. User can filter on cell or environment nickname. '''
 def menuToSwitchConfigFiles(config_file, keyword=""):
+    ''' Let user select a different config file without having to start a new script session. User can filter on cell or environment nickname. '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -2629,8 +3211,8 @@ def menuToSwitchConfigFiles(config_file, keyword=""):
         sys.exit(1)
 
 
-''' Part of "menuToSwitchConfigFiles". '''
 def whatConfigFileMenu(keyword=""):
+    ''' Part of "menuToSwitchConfigFiles". '''
     try:
         isFiltered = "true"
         theChosenConfigFileName = "theChosenConfigFileName not defined yet"
@@ -2705,8 +3287,8 @@ def whatConfigFileMenu(keyword=""):
         sys.exit(1)
     
 
-''' Menu to let user choose what kind of extra server detail to show. Only choice currently is qcf connection and session pools.'''
 def menuToShowMoreDetail(config_file, baseServerName):
+    ''' Menu to let user choose what kind of extra server detail to show. Only choice currently is qcf connection and session pools.'''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -2780,8 +3362,8 @@ def menuToShowMoreDetail(config_file, baseServerName):
         sys.exit(1)
 
 
-''' Menu to let user drill down to the specific qcf they want to see pool config for.'''
 def whatQueueConnectionFactoryMenu(config_file, baseServerName):
+    ''' Menu to let user drill down to the specific qcf they want to see pool config for.'''
     count = 1
     foundInWAS = "false"
     display = ""
@@ -2849,8 +3431,8 @@ def whatQueueConnectionFactoryMenu(config_file, baseServerName):
         return theChosenQCF
 
 
-''' Cell Menu. Lets user choose options that will apply to whole WAS cell. Currently only supports several options for changing pool settings for qfcs '''
 def menuForCellThings(config_file):
+    ''' Cell Menu. Lets user choose options that will apply to whole WAS cell. Currently only supports several options for changing pool settings for qfcs '''
     try:
         display = "\n\n"
         display += div1 + "\n"
@@ -2944,8 +3526,8 @@ def menuForCellThings(config_file):
         sys.exit(1)
 
 
-''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Cell Menu '''
 def readyCellMenu(menu_response):
+    ''' Print out the menu option that was just done, and confirm that it completed, to make it show in case log of user session is desired: the Cell Menu '''
     print "\nEnd of menu for cell things option " + menu_response  
     try:
         what_response = raw_input("\nPress any key to continue.  ")                    
@@ -2956,8 +3538,8 @@ def readyCellMenu(menu_response):
     menuForCellThings()        
 
 
-''' Let user fix up pool defaults for queue connection factories to match admin console defaults. Displays warning message and requires user to confirm before continuing.'''
 def callQCFPoolDefaultsFixerUpper(menu_response):
+    ''' Let user fix up pool defaults for queue connection factories to match admin console defaults. Displays warning message and requires user to confirm before continuing.'''
     danger_response = ""  
     warning_msg = ""
     try:
@@ -2981,8 +3563,8 @@ def callQCFPoolDefaultsFixerUpper(menu_response):
         menuForCellThings()
             
 
-''' Let user change pool settings for queue connection factories as specified in config file. Displays warning message and requires user to confirm before continuing.'''
 def callModifyAllQCFPoolPropsInCell(config_file, menu_response):
+    ''' Let user change pool settings for queue connection factories as specified in config file. Displays warning message and requires user to confirm before continuing.'''
     danger_response = ""  
     warning_msg = ""
     display = ""
@@ -3009,8 +3591,8 @@ def callModifyAllQCFPoolPropsInCell(config_file, menu_response):
         menuForCellThings()
 
 
-''' Return the path we expect the config files to be in. We expect the config_files dir to be in a dir called 'config_files' which is a sister dir of pwd. Edit this method to change the name or specify a different location.'''
 def get_config_dir_path():
+    ''' Return the path we expect the config files to be in. We expect the config_files dir to be in a dir called 'config_files' which is a sister dir of pwd. Edit this method to change the name or specify a different location.'''
     config_dir_name = 'config_files'
     current_working_dir = os.getcwd()
     parent_dir = os.path.split(current_working_dir)[0]
