@@ -279,10 +279,15 @@ def displayWASinfo():
                     display += sp2star + name + "\n"
                 else:   
                     display += sp2 + name + "\n"
+
         if WASvirtualHostList:                    
             display += "\n"
             display += sp1 + "Virtual hosts: \n"
-            display += sp2 + name + "\n"
+            for name in WASvirtualHostList:
+                if name in virtualHostList:
+                    display += sp2star + name + "\n"
+                else:
+                    display += sp2 + name + "\n"
         
         display += "\n\n"
         display += sp1 + "* indicates that an item of the same name is found in your config file \n"
