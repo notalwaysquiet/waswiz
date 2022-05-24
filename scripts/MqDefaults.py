@@ -2,40 +2,23 @@
 # WebSphere 9x script
 # Copyright (c) Hazel Malloy 2022
 ###############################################################################
-#   This Jython script includes the following procedures:
-#getConnectionTimeout
-#getMaxConnections
-#getUnusedTimeout
-#getMinConnections
-#getConnectionPurgePolicy
-#getSessionPurgePolicy
-#getAgedTimeout
-#getReapTime
-#getTempModel
-#getCCSID
-#getUseNativeEncoding
-#getSendAsync
-#getReadAhead
-#fixUpPoolDefaultsClusterLevel
-#fixUpPoolDefaultsServerLevel
-###############################################################################
-# Notes
-# The connection & session pool properties (in config file) are optional. For each connection pool prop, 
-#  if it is set to "" then the admin console default is used 
-#  (as specified in py).
-# For the diff between connection pool and session pool see 
-#   http://www-01.ibm.com/support/docview.wss?uid=swg21201242
-# WAS to MQ product connectivity info center
-#    http://publib.boulder.ibm.com/infocenter/prodconn/v1r0m0/topic/com.ibm.scenarios.wmqwasusing.doc/topics/tcpipconnuse_jmsconfactory.htm
-# Note that WASv7.0.0.21 does not set the wsadmin default to match admin console default for pool props.
-# As of Feb 2013, my script sets pool props to admin console defaults if not specified differently in config file.
-# WASv7.0.0.21 admin console defaults for connection and session pool props are the same.
+""" Notes
+* The connection & session pool properties (in config file) are optional.
+* For each connection pool prop, if it is set to "" then the admin console
+default is used (as specified in this file).  For the diff between
+connection pool and session pool see
+    https://www.ibm.com/support/pages/explanation-connection-pool-and-session-pool-settings-jms-connection-factories
+and WAS to MQ product connectivity info center
+# https://www.ibm.com/docs/en/pcs?topic=welcome
+* Note that WASv7.0.0.21 does not set the wsadmin default to match admin
+console default for pool props."""
 
 import sys
 import AdminConfig
 import Mq
 
-#admin Console Default values for QCF Connection & session Pool Properties. Time is in seconds.
+#admin Console Default values for QCF Connection & session Pool Properties.
+# Time is in seconds.
 connectionTimeout = 180
 maxConnections = 10
 minConnections = 1
@@ -45,16 +28,25 @@ agedTimeout = 0
 connectionPurgePolicy = "EntirePool"
 sessionPurgePolicy = "FailingConnectionOnly"
 
+# tempModel. In admin console at [qcf] > Advanced properties > WebSphere
+#   MQ model queue name tempModel. The model queue that is used as a
+#   basis for temporary queue definitions. Default is supposed to be:
+#   SYSTEM.DEFAULT.MODEL.QUEUE but script-created qcf's do not get this
+#   set (at least in v7 & v8) unless they explicitly set it if we didn't
+#   do this, actual wsadmin default is ''
+tempModel = 'SYSTEM.DEFAULT.MODEL.QUEUE'
+
+# MQ messaging provider queue and topic advanced properties settings
+# Resources > JMS > Queues > Additional properties > Advanced properties
 CCSID = '1208'
 useNativeEncoding = 'true'
+# in admin console as "Asynchronously send messages to the queue
+#   manager: As per queue definition"
 sendAsync = 'QUEUE_DEFINED'
+# in admin console as "Read ahead and cache non-persistent messages for
+#   consumers: As per queue definition"
 readAhead = 'QUEUE_DEFINED'
 
-# tempModel. In admin console at [qcf] > Advanced properties > WebSphere MQ model queue name 
-# tempModel. The model queue that is used as a basis for temporary queue definitions.
-# Default is suppsed to be: SYSTEM.DEFAULT.MODEL.QUEUE but script-created qcf's do not get this set unless they explicitly set it
-# if we didn't do this, actual wsadmin default is ''
-tempModel = 'SYSTEM.DEFAULT.MODEL.QUEUE'
 
 def getConnectionTimeout():
     return connectionTimeout
@@ -207,5 +199,3 @@ def fixUpPoolDefaultsByScope(poolType, jmsProviderScopePath, factoryName):
         sys.exit(1)
     #endTry
     print "fixUpPoolDefaultsByScope()"
-    
-

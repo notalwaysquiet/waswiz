@@ -23,7 +23,8 @@
 connectionTimeout = 180
 maxConnections = 10
 unusedTimeout = 1800
-minConnections = 1
+# prior to v8.5.5.8 the default minConnections was 1
+minConnections = 0
 # wsadmin default is FailingConnectionOnly: not the same as admin console default, which is "EntirePool"
 # despite the fact that I created them with AdminConfig.createUsingTemplate using built-in jdbc templates (in Datasources.py)
 # this is not what the info center says http://pic.dhe.ibm.com/infocenter/wasinfo/v7r0/topic/com.ibm.websphere.nd.doc/info/ae/ae/udat_conpoolset.html
@@ -56,4 +57,3 @@ def getAgedTimeout():
 
 def getReapTime():
     return reapTime
-    

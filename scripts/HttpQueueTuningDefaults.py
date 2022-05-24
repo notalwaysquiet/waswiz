@@ -20,6 +20,8 @@ maxOpenConnections = 20000
 inactivityTimeout = 60
 
 # TCP transport channel custom properties
+# note that this custom prop does not show on the admin console unless
+#   it is set to a non-default value
 listenBacklog = 511
 
 
@@ -44,5 +46,3 @@ def getAttribute(attribute):
         print "  in HttpQueueTuningDefaults.getAttribute()"
         print "Exiting."
         sys.exit(1)      
-
-    
